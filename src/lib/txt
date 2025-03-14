@@ -1,0 +1,189 @@
+// The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
+
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+
+const Signup = () => {
+    const [selectedRole, setSelectedRole] = useState("student");
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        roll: '',
+        branch: '',
+        department: '',
+        designation: ''
+    });
+
+    const branches = ['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Chemical'];
+    const departments = ['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Chemical'];
+    const designations = ['Associate Professor', 'Professor', 'Assistant Professor'];
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log(formData)
+       
+    }
+
+    return (
+        <div className="h-auto bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+            <div className="max-w-[500px] w-full space-y-8 bg-white p-8 rounded-lg shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                <div>
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
+                    <p className="mt-2 text-center text-sm text-gray-600">Join us and start your journey</p>
+                </div>
+
+                <div className="flex justify-center space-x-4 mb-8">
+                    {['student', 'hod', 'projectHead'].map((role) => (
+                        
+                        <button
+                            key={role}
+                            onClick={() => setSelectedRole(role)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer whitespace-nowrap !rounded-button ${selectedRole === role
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                        >
+                            {role === 'projectHead' ? 'Project Head' : role.toUpperCase()}
+                        </button>
+                    ))}
+                </div>
+
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    <div className="space-y-4">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border"
+                                placeholder="Full Name"
+                            />
+                        </div>
+
+                        {selectedRole === 'student' && (
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    name="roll"
+                                    value={formData.roll}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border"
+                                    placeholder="Roll Number"
+                                />
+                            </div>
+                        )}
+
+                        {selectedRole === 'student' && (
+                            <div className="relative">
+                                <select
+                                    name="branch"
+                                    value={formData.branch}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border bg-white"
+                                >
+                                    <option value="">Select Branch</option>
+                                    {branches.map(branch => (
+                                        <option key={branch} value={branch}>{branch}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {(selectedRole === 'hod' || selectedRole === 'projectHead') && (
+                            <>
+                                <div className="relative">
+                                    <select
+                                        name="department"
+                                        value={formData.department}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border bg-white"
+                                    >
+                                        <option value="">Select Department</option>
+                                        {departments.map(dept => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="relative">
+                                    <select
+                                        name="designation"
+                                        value={formData.designation}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border bg-white"
+                                    >
+                                        <option value="">Select Designation</option>
+                                        {designations.map(desig => (
+                                            <option key={desig} value={desig}>{desig}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="relative">
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border"
+                                placeholder="Email address"
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 block text-sm border"
+                                placeholder="Password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                            >
+                                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-gray-400`}></i>
+                            </button>
+                        </div>
+                    </div>
+
+    
+
+                    <button
+                        type="submit"
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 cursor-pointer whitespace-nowrap !rounded-button"
+                    >
+                        sign up
+                    </button>
+
+                    <div className="text-center mt-4">
+                        <Link to="/" className="text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer">
+                            Already have an account? Sign in
+                        </Link>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default Signup;
+

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script>
+    <script src="https://ai-public.creatie.ai/gen_page/tailwind-config.min.js" data-color="#000000" data-border-radius="medium"></script>
+</head>
+<body class="bg-custom text-white font-[&#39;Inter&#39;]">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 p-6 flex flex-col">
+            <div class="flex items-center mb-8">
+                <i class="fas fa-clock mr-2"></i>
+                <span class="text-xl font-semibold">Upcoming</span>
+            </div>
+            
+            <nav class="flex-1 space-y-2">
+                <a href="#" class="flex items-center p-3 rounded-lg bg-gray-800">
+                    <i class="fas fa-home w-5"></i>
+                    <span class="ml-3">Overview</span>
+                </a>
+                
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-bell w-5"></i>
+                    <span class="ml-3">Notifications</span>
+                </a>
+                
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-user w-5"></i>
+                    <span class="ml-3">Profile</span>
+                </a>
+                
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-project-diagram w-5"></i>
+                    <span class="ml-3">Projects</span>
+                </a>
+                
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-plus w-5"></i>
+                    <span class="ml-3">Submit Project</span>
+                </a>
+                
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-edit w-5"></i>
+                    <span class="ml-3">Update Project</span>
+                </a>
+                
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-tasks w-5"></i>
+                    <span class="ml-3">Project Status</span>
+                </a>
+            </nav>
+            
+            <div class="pt-6 space-y-2">
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-sign-out-alt w-5"></i>
+                    <span class="ml-3">Sign Out</span>
+                </a>
+                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-crown w-5"></i>
+                    <span class="ml-3">Upgrade Plan</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="max-w-7xl mx-auto">
+                <!-- Header -->
+                <header class="mb-8">
+                    <h1 class="text-3xl font-bold mb-6">Welcome back, student!</h1>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex -space-x-2">
+                            <img src="https://creatie.ai/ai/api/search-image?query=professional headshot of a student in academic setting&width=80&height=80&orientation=squarish&flag=d33c9172-26d5-4161-a846-ba913e66190c&flag=f7f25bdb-51cd-45b4-af67-35cd60bfb727" class="w-12 h-12 rounded-full border-2 border-gray-800" alt="Profile 1"/>
+                            <img src="https://creatie.ai/ai/api/search-image?query=student working on laptop in modern library&width=80&height=80&orientation=squarish&flag=1b91b369-2c2c-489e-82df-7c9797236429&flag=f90e7f1c-aad8-420f-8bcc-0dea580b06bb" class="w-12 h-12 rounded-full border-2 border-gray-800" alt="Profile 2"/>
+                            <img src="https://creatie.ai/ai/api/search-image?query=student participating in group discussion&width=80&height=80&orientation=squarish&flag=5aa6866e-f557-4c48-95eb-ba1bcb0ec8f7&flag=a25cf884-69fd-4382-83ae-d4262ce51efa" class="w-12 h-12 rounded-full border-2 border-gray-800" alt="Profile 3"/>
+                            <img src="https://creatie.ai/ai/api/search-image?query=student presenting in classroom&width=80&height=80&orientation=squarish&flag=9e0b24dd-c1dc-4da0-8945-1d930a23476c&flag=587b6c31-8ab0-47d9-a065-df34ca4fdecf" class="w-12 h-12 rounded-full border-2 border-gray-800" alt="Profile 4"/>
+                        </div>
+                        <button class="!rounded-button px-4 py-2 bg-blue-600 text-white font-medium">Edit</button>
+                    </div>
+                </header>
+
+                <!-- Project Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold">Project Statistics</h2>
+                            <button class="!rounded-button px-4 py-2 bg-blue-600 text-white font-medium">View</button>
+                        </div>
+                        <p class="text-gray-400">Track your project progress here!</p>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold">Create Project</h2>
+                            <button class="!rounded-button px-4 py-2 bg-blue-600 text-white font-medium">Create</button>
+                        </div>
+                        <p class="text-gray-400">Start a new project</p>
+                    </div>
+                </div>
+
+                <!-- Project Tasks -->
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-xl font-semibold mb-6">Project Tasks</h2>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="bg-gray-700 rounded-full p-4 flex items-center justify-center">
+                            <i class="fas fa-list text-2xl"></i>
+                        </div>
+                        <div class="bg-gray-700 rounded-full p-4 flex items-center justify-center">
+                            <i class="fas fa-users text-2xl"></i>
+                        </div>
+                        <div class="bg-gray-700 rounded-full p-4 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-2xl"></i>
+                        </div>
+                        <div class="bg-gray-700 rounded-full p-4 flex items-center justify-center">
+                            <i class="fas fa-code text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-80 bg-gray-900 p-6">
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Notifications</h2>
+                <p class="text-gray-400 mb-4">Submit or update your projects here!</p>
+                <button class="!rounded-button w-full py-2 bg-blue-600 text-white font-medium">Submit</button>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold">Project Deadlines</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center bg-gray-800 rounded-lg p-3">
+                        <span class="w-8">1st</span>
+                        <img src="https://creatie.ai/ai/api/search-image?query=professional student avatar&width=40&height=40&orientation=squarish&flag=38a935be-756c-4b1a-9289-c90882ab2ea1&flag=786c33d9-5431-4931-945d-844e53029f0d" class="w-8 h-8 rounded-full mx-2" alt="User"/>
+                        <span class="flex-1">Important Project</span>
+                    </div>
+                    <div class="flex items-center bg-gray-800 rounded-lg p-3">
+                        <span class="w-8">2nd</span>
+                        <img src="https://creatie.ai/ai/api/search-image?query=student portrait with books&width=40&height=40&orientation=squarish&flag=58e891fc-ac45-4fc4-886d-fd8db4d9b426&flag=32600a0c-7227-4ad6-ad64-0afd263ef442" class="w-8 h-8 rounded-full mx-2" alt="User"/>
+                        <span class="flex-1">Group Project</span>
+                    </div>
+                    <div class="flex items-center bg-gray-800 rounded-lg p-3">
+                        <span class="w-8">3rd</span>
+                        <img src="https://creatie.ai/ai/api/search-image?query=student in library environment&width=40&height=40&orientation=squarish&flag=685154d1-f57a-4a1d-946d-a21597e5159e&flag=faf2c667-19bc-4acf-97d4-8677e9b3bc7a" class="w-8 h-8 rounded-full mx-2" alt="User"/>
+                        <span class="flex-1">Research Paper</span>
+                    </div>
+                    <div class="flex items-center bg-gray-800 rounded-lg p-3">
+                        <span class="w-8">7th</span>
+                        <img src="https://creatie.ai/ai/api/search-image?query=student working on computer&width=40&height=40&orientation=squarish&flag=12acd516-b382-4229-8820-cdb4fae301c3&flag=202302fd-3bc6-4c60-96d5-625de57e39b2" class="w-8 h-8 rounded-full mx-2" alt="User"/>
+                        <span class="flex-1">Final Presentation</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+
+</body></html>
