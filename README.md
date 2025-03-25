@@ -29,14 +29,24 @@
 
 ## 📸 Screenshots
 
-  ### Dashboard
+  ### Dashboard 
 <p align="center">
-  <img src="public/home.png" alt="Dashboard Screenshot" width="80%">
+  <img style="border-radius:20" src="public/home.png" alt="Dashboard Screenshot" width="80%">
 </p>
 
-  ### Sign Up
+  ### Signup Page
 <p align="center">
   <img src="public/signup.png" alt="Modal Screenshot" width="80%">
+</p>
+
+  ### Student Dashboard
+<p align="center">
+  <img src="public/student-dash.png" alt="Modal Screenshot" width="80%">
+</p>
+
+  ### Student Profile
+<p align="center">
+  <img src="public/student-profile.png" alt="Modal Screenshot" width="80%">
 </p>
 
 ---
