@@ -31,12 +31,12 @@
 
   ### Dashboard
 <p align="center">
-  <img src="public/assets/README-images/dashboard-screenshot.png" alt="Dashboard Screenshot" width="80%">
+  <img src="public/home.png" alt="Dashboard Screenshot" width="80%">
 </p>
 
-  ### Project Details Modal
+  ### Sign Up
 <p align="center">
-  <img src="public/assets/README-images/modal-screenshot.png" alt="Modal Screenshot" width="80%">
+  <img src="public/signup.png" alt="Modal Screenshot" width="80%">
 </p>
 
 ---
