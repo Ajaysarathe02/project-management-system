@@ -29,12 +29,12 @@
 
 ## 📸 Screenshots
 
-### Dashboard
+  ### Dashboard
 <p align="center">
   <img src="public/assets/README-images/dashboard-screenshot.png" alt="Dashboard Screenshot" width="80%">
 </p>
 
-### Project Details Modal
+  ### Project Details Modal
 <p align="center">
   <img src="public/assets/README-images/modal-screenshot.png" alt="Modal Screenshot" width="80%">
 </p>
@@ -55,6 +55,87 @@
 Follow these steps to set up the project locally:
 
 1. Clone the repository:
+   
    ```bash
    git clone https://github.com/your-username/project-management-system.git
    cd project-management-system
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to:
+
+   ```bash
+   http://localhost:5173
+   ```
+
+
+
+## ⚙️ Configuration
+
+1. Set up your Appwrite project:
+   - create a database and collection for projects.
+   - Configure storage for file uploads.
+
+2. Update the Appwrite configuration in ```src/lib/appwrite.js ```:
+
+   ```bash
+   export const database_id = "<your-database-id>";
+   export const storage_bucket_id = "<your-storage-bucket-id>";
+   ```
+
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+   1. Fork the repository :
+   2. Create a new branch :
+      
+      ```bash
+      git checkout -b feature/your-feature-name
+      ```
+  3. Commit your changes :
+     
+     ```bash
+     git commit -m "Add your message here"
+     ```
+  4. Push to your changes :
+
+     ```bash
+     git push origin feature/your-feature-name
+     ```
+
+  5. Open a pull request.
+
+
+## 📄 License
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## 🌟 Acknowledgements
+
+- <a href="" > React </a>
+- <a href="" > Vite </a>
+- <a href="" > AppWrite </a>
+- <a href="" > TailwindCSS </a>
+- <a href="" > Font Awesome </a>
+
+<p align="center"> Made with ❤️ by <a href="https://github.com/kumar21-crypto">Aniruddh</a> </p> 
+
+## Notes:
+
+  1. Replace ```<your-project-logo.png>``` and ```<screenshot.png>``` with actual image paths in your ```public/assets/README-images``` folder.
+
+  2. Update placeholders like ```<your-database-id>``` and ```<your-storage-bucket-id>``` with your actual Appwrite configuration.
+
+  3. Add your GitHub username and project link where applicable.
