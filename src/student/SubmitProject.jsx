@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { client, databases, database_id, ID, account } from "../lib/appwrite";
+import { client, databases, database_id, ID, account,storage } from "../lib/appwrite";
 import { UserContext } from "../context/contextApi";
 
 const SubmitProject = () => {
@@ -26,7 +26,8 @@ const SubmitProject = () => {
     proheadStatus:'not approved',
     hodComment:'no comments',
     proheadComment:'no comment',
-    uploadBy:user.$id
+    uploadBy:user.$id,
+    images: [],
   });
 
   const handleChange = (e) => {
@@ -37,13 +38,64 @@ const SubmitProject = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
+  // for image selection
+  const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setProjectData((prevData) => ({
       ...prevData,
-      attachments: files,
+      images: files,
     }));
-    setFileNames(files.map((file) => file.name));
+  };
+
+  // handle file selection
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+  
+    // Validate file size (max 10MB)
+    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10MB in bytes
+    const invalidFiles = files.filter((file) => file.size > 10 * 1024 * 1024);
+  
+    if (invalidFiles.length > 0) {
+      toast.error("Some files exceed the 10MB size limit and were not added.");
+    }
+
+    setProjectData((prevData) => ({
+      ...prevData,
+      attachments: validFiles,
+    }));
+  
+    setFileNames(validFiles.map((file) => file.name));
+  };
+
+  // project file storage
+  const uploadFilesToStorage = async (files) => {
+    const uploadedFiles = [];
+  
+    for (const file of files) {
+      try {
+        // Upload file to Appwrite storage
+        const response = await  storage.createFile(
+          "67d541b9000f5101fd5d", // Replace with your bucket ID
+          ID.unique(), // Generate a unique ID for the file
+          file
+        );
+  
+        // Add file metadata to the uploadedFiles array
+        uploadedFiles.push({
+          fileId: response.$id,
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+        });
+     
+
+      } catch (error) {
+        console.error("File upload failed:", error);
+        toast.error(`Failed to upload file: ${file.name}`);
+      }
+    }
+  
+    return uploadedFiles;
   };
 
   const handleAddTeamMember = () => {
@@ -63,21 +115,19 @@ const SubmitProject = () => {
     }));
   };
 
+  // project submit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+  
     try {
+     
+      await uploadProject(user.$id,projectData)
 
-      console.log("user id", user);
-      await uploadProject(user.$id, projectData);
-      toast.success("Project submitted successfully");
-      console.log("projects", projects);
-
+      toast.success("Project submitted successfully!");
     } catch (error) {
-
-      console.error(error);
-      toast.error("Failed to submit project");
-      
+      console.error("Failed to submit project:", error);
+      toast.error("Failed to submit project.");
     } finally {
       setLoading(false);
     }
@@ -226,6 +276,20 @@ const SubmitProject = () => {
                   className="w-full bg-gray-700 border-gray-600 text-white rounded-lg"
                   placeholder="Enter project description"
                 ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Project Images
+                </label>
+                <input
+                  type="file"
+                  name="images"
+                  accept="image/*"
+                  multiple
+                  className="w-full bg-gray-700 border-gray-600 text-white rounded-lg px-8 py-4 cursor-pointer"
+                  onChange={handleImageChange}
+                />
               </div>
 
               <div>

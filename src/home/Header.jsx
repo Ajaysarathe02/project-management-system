@@ -1,24 +1,36 @@
-import React, { useRef,useContext } from 'react'
+import React, { useRef,useContext,useState ,useEffect} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserContext } from '../context/contextApi';
+import { account } from '../lib/appwrite';
 
 function Header() {
 
   const navigate = useNavigate();
-  const { user } = useContext(UserContext); // Get the current user from context
+  const {currentRole} = useContext(UserContext);
+
+  const { user, fetchUserRole } = useContext(UserContext); // Get the current user from context
 
   const handleDashboardRedirect = () => {
-    if (user?.role === "student") {
+    if (currentRole === "student") {
       navigate("/student-dash"); // Redirect to Student Dashboard
-    } else if (user?.role === "project-head") {
+    } else if (currentRole === "project-head") {
       navigate("/projecthead-dash"); // Redirect to Project Head Dashboard
     } else {
       alert("Unauthorized access or role not defined!");
     }
   };
 
+
+
+
+    useEffect(() => {
+      handleDashboardRedirect()
+    }, [currentRole])
+
+    
+
   return (
-    <header className="bg-gray-900  w-full top-0 fixed z-[1000] p-[10px 20px] shadow-md">
+    <header className="bg-gray-900  w-full top-0 fixed z-[1000] p-[10px 20px] shadow-md" >
         <nav className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             <div className="flex items-center">

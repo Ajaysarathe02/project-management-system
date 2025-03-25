@@ -2,7 +2,7 @@ import { useState,useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { account ,ID, databases, database_id} from "./appwrite";
 import { ProjectHeadContext, UserContext } from "../context/contextApi";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { motion } from "motion/react";
 
 const Signup = () => {
@@ -53,7 +53,7 @@ const Signup = () => {
         setStudentName(""); setStudentEmail(""); setStudentPassword(""), setStudentRoll("")
         toast.success(`${studentName} signup successfully`,{position:"top-center"})
         setLoading(false)
-        console.log(res)
+      
         setTimeout(()=>{
           navigate('/')
         },2000)
@@ -76,12 +76,14 @@ const Signup = () => {
   const handlePhSubmit =  (e) => {
     setLoading(true)
     e.preventDefault();
+    console.log("signup role is ",role)
+
+    try{
     const response =  signupProjectHead(phName,phEmail,phPassword,phDepartment,phDesignation,role);
 
     setTimeout(() => {
       if(response){
         toast.success(`${phName} signup successfully`,{position:"top-center"})
-        
         setLoading(false)
         setTimeout(()=>{
           navigate('/')
@@ -91,16 +93,18 @@ const Signup = () => {
         toast.error(`signup failed`,{position:"top-center"})
       } 
     },4000)
-
+  }catch(error){
+    console.log("error",error)
+    setLoading(false);
+      toast.error(`signup failed`, { position: "top-center" });
+  }
     
   };
   
 
- 
-
   return (
     <div className="bg-gray-50 h-auto flex flex-col items-center justify-center p-4">
-
+<ToastContainer />
       <motion.div 
       initial={{ opacity: 0, scale: 0.8, y: 50 }} // Initial animation state
       animate={{ opacity: 1, scale: 1, y: 0 }} // Final animation state

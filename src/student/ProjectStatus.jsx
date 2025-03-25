@@ -12,23 +12,7 @@ const ProjectStatus = () => {
   return (
     <div className="flex min-h-screen ">
       <main className="w-full">
-        <header className="bg-gray-800 rounded-[8px] shadow-lg ml-8 mr-8">
-          <div className="flex items-center justify-between px-8 py-4">
-            <h1 className="text-2xl font-semibold text-white">
-              Project Status Dashboard
-            </h1>
-            <div className="flex items-center space-x-4">
-              <button className="relative p-2 text-gray-400 hover:text-white">
-                <i className="fas fa-bell text-xl"></i>
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="flex items-center">
-                <span className="ml-3 text-white">{user?.name}</span>
-              </div>
-            </div>
-          </div>
-        </header>
-
+        
         <div className="p-8">
           <div className="grid grid-cols-4 gap-6 mb-8">
             <div className="bg-gray-800 p-6 rounded-lg">

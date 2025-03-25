@@ -27,7 +27,6 @@ function Home() {
 
         try {
             const response = login(email,pass);
-            
             if(response){
                 toast.success(`user login successful`, { position: 'top-center' })
                 if (role === 'student') {navigate('/student-dash')}
