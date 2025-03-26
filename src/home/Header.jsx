@@ -11,13 +11,13 @@ function Header() {
   const { user, fetchUserRole } = useContext(UserContext); // Get the current user from context
 
   const handleDashboardRedirect = () => {
-    if (currentRole === "student") {
-      navigate("/student-dash"); // Redirect to Student Dashboard
-    } else if (currentRole === "project-head") {
-      navigate("/projecthead-dash"); // Redirect to Project Head Dashboard
-    } else {
-      alert("Unauthorized access or role not defined!");
-    }
+    // if (currentRole === "student") {
+    //   navigate("/student-dash"); // Redirect to Student Dashboard
+    // } else if (currentRole === "project-head") {
+    //   navigate("/projecthead-dash"); // Redirect to Project Head Dashboard
+    // } else {
+    //   alert("Unauthorized access or role not defined!");
+    // }
   };
 
 
@@ -60,9 +60,9 @@ function Header() {
               <a href="#" className=" hover:text-custom">
                 Contact
               </a>
-              <button  className="rounded bg-custom text-white px-6 py-2 hover:bg-custom/90">
-                login
-              </button>
+              <a href="#" className=" hover:text-custom">
+                {user ? user.name.split(" ")[0] : "no user"}
+              </a>
             </div>
           </div>
         </nav>

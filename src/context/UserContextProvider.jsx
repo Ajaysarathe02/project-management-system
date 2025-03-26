@@ -124,26 +124,7 @@ const UserContextProvider = ({ children }) => {
     }
   };
 
-  // Update attachments in the projects collection
-const updateProjectAttachments = async (projectId, uploadedFiles) => {
-  try {
-    // Ensure uploadedFiles contains only file IDs if the schema expects strings
-    const fileIds = uploadedFiles.map((file) => file.fileId); // Extract file IDs
-
-    // Update the attachments field in the specific project document
-    await databases.updateDocument(
-      database_id, // Replace with your database ID
-      "67d08e5700221884ebb9", // Collection ID of projects
-      projectId, // Document ID of the project
-      { attachments: uploadedFiles } // Update the attachments field
-    );
-
-    console.log(`Attachments updated successfully for project: ${projectId}`);
-  } catch (error) {
-    console.error("Failed to update project attachments:", error);
-  }
-};
-
+ 
   // for uploading projects
   const uploadProject = async (userId, projectData) => {
     try {

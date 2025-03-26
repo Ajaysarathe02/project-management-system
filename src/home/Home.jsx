@@ -23,7 +23,6 @@ function Home() {
 
         e.preventDefault();
         setLoading(true)
-        console.log(email, role, pass);
 
         try {
             const response = login(email,pass);
