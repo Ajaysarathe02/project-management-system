@@ -12,6 +12,7 @@
   <img src="https://img.shields.io/badge/React-v18.2.0-blue" alt="React Version">
   <img src="https://img.shields.io/badge/Vite-v4.0.0-purple" alt="Vite Version">
   <img src="https://img.shields.io/badge/Appwrite-Cloud-orange" alt="Appwrite">
+  <img src="https://img.shields.io/badge/TailwindCSS-v4.0-blue" alt="Tailwind">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
 </p>
 
