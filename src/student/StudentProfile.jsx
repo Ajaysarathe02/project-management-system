@@ -266,8 +266,8 @@ function StudentProfile() {
                 <h1 className="text-2xl font-semibold text-white">Profile</h1>
                 <p className="mt-2 text-gray-400">View and edit your profile details</p>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-1">
+                <div className="">
+                    <div className="">
                         <div className="bg-gray-800 shadow rounded-lg p-6">
                             <div className="text-center">
                                 <div className="relative inline-block">
@@ -286,6 +286,8 @@ function StudentProfile() {
                                     >
                                         <i className="fas fa-camera"></i>
                                     </label>
+
+                                    
 
                                     {isModalOpen && (
                                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -323,6 +325,17 @@ function StudentProfile() {
                                     )}
 
                                 </div>
+
+                                <div className="mt-10">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Student ID :
+                                        </label>
+
+                                        <p className="mt-1 text-white">
+                                            {academicData.enrollmentNumber}
+                                        </p>
+
+                                    </div>
                             </div>
 
                             {/* Bio Section */}
@@ -341,9 +354,9 @@ function StudentProfile() {
                             </div>
                         </div>
 
-                        <div className="lg:col-span-2 space-y-8">
+                        <div className=" space-y-8">
                             {/* Personal Information Section */}
-                            <div className="bg-gray-800 shadow rounded-lg p-6">
+                            <div className="bg-gray-800 shadow rounded-lg p-6 mt-8">
                                 <h3 className="text-lg font-semibold text-white mb-6">
                                     Personal Information
                                 </h3>
