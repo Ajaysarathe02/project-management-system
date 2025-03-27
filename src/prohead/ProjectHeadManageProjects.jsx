@@ -16,10 +16,6 @@ function ProjectHeadManageProjects() {
   const [selectedSortOption, setSelectedSortOption] = useState("Newest"); // State for the selected sort option
   const [searchQuery, setSearchQuery] = useState(""); // State for the search query
 
-  // sort project according to project category
-  // const filteredProjects = selectedProjectCategory === "All Categories"
-  //   ? projects
-  //   : projects.filter((project) => project.category === selectedProjectCategory);
 
     const filteredProjects = projects
   .filter((project) => {
@@ -110,6 +106,11 @@ function ProjectHeadManageProjects() {
     console.log(image[0].imageId)
     return `https://cloud.appwrite.io/v1/storage/buckets/67d541b9000f5101fd5d/files/${image[0].imageId}/view?project=67d013a6000a87361603`;
   };
+
+  const directGenerateFileUrl = (fileID) => {
+    return `https://cloud.appwrite.io/v1/storage/buckets/67d541b9000f5101fd5d/files/${fileID}/view?project=67d013a6000a87361603`;
+
+  }
 
   // get file icons
   const getFileIcon = (fileName) => {
@@ -286,7 +287,9 @@ function ProjectHeadManageProjects() {
                   <p className="mt-2 text-sm text-gray-400">{project.description}</p>
                   <div className="mt-4 flex items-center">
                     <div className="flex-shrink-0">
-                      <img className="h-8 w-8 rounded-full" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4GQuewxLfMh2olMxwVIVsJmu1qFf5Q4dwZw&s" alt="" />
+                      <img 
+                      className="h-8 w-8 rounded-full" 
+                      src={directGenerateFileUrl(projectUploaderMap[project.$id]?.userPicture) || `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4GQuewxLfMh2olMxwVIVsJmu1qFf5Q4dwZw&s`} alt="" />
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-white">{projectUploaderMap[project.$id]?.Name || "unknown"}</p>
