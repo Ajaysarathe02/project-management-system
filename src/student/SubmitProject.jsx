@@ -6,6 +6,14 @@ import { UserContext } from "../context/contextApi";
 import Uploading from "../animations/Uploading.json"
 import Success from "../animations/Success.json"
 import Lottie from "lottie-react";
+import { FaReact, FaAngular, FaVuejs, FaNodeJs, FaPython, FaGithub, FaNpm, FaSwift } from "react-icons/fa";
+import { SiDjango, SiTailwindcss, SiFirebase, SiAppwrite, SiTensorflow, SiPytorch, SiScikitlearn, SiKeras, 
+  SiOpencv, SiJupyter, SiGooglecolab, SiFigma, SiAdobexd, SiSketch, SiInvision, SiFramer, SiZelle, 
+  SiCanva, SiTableau, SiPowers, SiFlutter, 
+  SiKotlin,
+  SiAndroidstudio} from "react-icons/si";
+import { TbBrandReactNative } from "react-icons/tb";
+import { img, source } from "motion/react-m";
 
 const SubmitProject = () => {
   // project data
@@ -13,6 +21,7 @@ const SubmitProject = () => {
   const [fileNames, setFileNames] = useState([]);
   const [newTeamMember, setNewTeamMember] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle");
+  const [selectedTechnologies, setSelectedTechnologies] = useState([]);
 
   const { user, fetchProjects, uploadProject, projects } =
     useContext(UserContext);
@@ -34,30 +43,72 @@ const SubmitProject = () => {
     uploadBy: user.$id,
     images: [],
   });
-
-
-  // for clear the form
-  const clearForm = () => {
-    setProjectData({
-      title: "",
-      category: "Web Development",
-      head: "",
-      teamMembers: [],
-      dueDate: "",
-      githubLink: "",
-      description: "",
-      attachments: [],
-      hodStatus: "not approved",
-      proheadStatus: "not approved",
-      hodComment: "no comments",
-      proheadComment: "no comment",
-      uploadBy: user.$id,
-      images: [],
-    });
-    setFileNames([]);
-    setNewTeamMember("");
+  
+  // technology icons
+  const technologyIcons = {
+    React: <FaReact className="text-blue-500" />,
+    Angular: <FaAngular className="text-red-500" />,
+    Vue: <FaVuejs className="text-green-500" />,
+    "Node.js": <FaNodeJs className="text-green-600" />,
+    Django: <SiDjango className="text-green-700" />,
+    TailwindCSS: <SiTailwindcss className="text-blue-400" />,
+    Bootstrap: <FaReact className="text-purple-500" />,
+    Firebase:  <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=62452&format=png&color=000000" />,
+    Appwrite: <SiAppwrite className="text-pink-500" />,
+    GitHub: <FaGithub className="text-gray-500" />,
+    NPM: <FaNpm className="text-red-600" />,
+    TensorFlow: <SiTensorflow className="text-orange-500" />,
+    PyTorch: <SiPytorch className="text-red-500" />,
+    "Scikit-learn": <SiScikitlearn className="text-blue-500" />,
+    Keras: <SiKeras className="text-red-400" />,
+    OpenCV: <SiOpencv className="text-blue-600" />,
+    "Jupyter Notebook": <SiJupyter className="text-orange-400" />,
+    "Google Colab": <SiGooglecolab className="text-yellow-400" />,
+    Figma: <SiFigma className="text-purple-400" />,
+    "Adobe XD": <SiAdobexd className="text-pink-400" />,
+    Sketch: <SiSketch className="text-yellow-400" />,
+    InVision: <SiInvision className="text-purple-500" />,
+    Framer: <SiFramer className="text-blue-500" />,
+    Canva: <SiCanva className="text-blue-400" />,
+    Zeplin: <SiZelle className="text-yellow-500" />,
+    Tableau: <SiTableau className="text-blue-500" />,
+    "Power BI": <SiPowers className="text-yellow-500" />,
+    "React Native": <TbBrandReactNative className="text-blue-400" />,
+    "Flutter": <SiFlutter className="text-blue-400" />,
+    Swift:<FaSwift className="text-orange-400" />,
+    Kotlin: <SiKotlin className="text-purple-700  text-sm" />,
+    // "Android Studio": <SiAndroidstudio className="text-blue-700" />,
+    "Android Studio": <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=04OFrkjznvcd&format=png&color=000000" />,
+    Pandas: <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=xSkewUSqtErH&format=png&color=000000" /> ,
+    NumPy : <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=aR9CXyMagKIS&format=png&color=000000" /> ,
+    Matplotlib : <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=AuUafKkHkYAO&format=png&color=000000" /> ,
+    
+    
   };
+ 
+  const clearForm = () => {
+  setProjectData({
+    title: "",
+    category: "Web Development",
+    head: "",
+    teamMembers: [],
+    dueDate: "",
+    githubLink: "",
+    description: "",
+    attachments: [],
+    hodStatus: "not approved",
+    proheadStatus: "not approved",
+    hodComment: "no comments",
+    proheadComment: "no comment",
+    uploadBy: user.$id,
+    images: [],
+  });
+  setSelectedTechnologies([]); // Clear selected technologies
+  setFileNames([]); // Clear file names
+  setNewTeamMember(""); // Clear the team member input
+};
 
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProjectData((prevData) => ({
@@ -121,8 +172,12 @@ const SubmitProject = () => {
     setLoading(true);
 
     try {
+      const updatedProjectData = {
+        ...projectData,
+        technologies: selectedTechnologies, // Add selected technologies to project data
+      };
 
-      await uploadProject(user.$id, projectData);
+      await uploadProject(user.$id, updatedProjectData);
       setUploadStatus("success");
 
       // hide the success animation
@@ -139,6 +194,72 @@ const SubmitProject = () => {
     }
   };
 
+  // select project technologies
+  const categoryTechnologies = {
+    "Web Development": [
+      "React",
+      "Angular",
+      "Vue",
+      "Node.js",
+      "Django",
+      "TailwindCSS",
+      "Bootstrap",
+      "Firebase",
+      "Appwrite",
+      "GitHub",
+      "NPM",
+    ],
+    "Mobile App": [
+      "React Native",
+      "Flutter",
+      "Swift",
+      "Kotlin",
+      "Ionic",
+      "Firebase",
+      "Appwrite",
+      "Expo",
+      "Android Studio",
+    ],
+    "Machine Learning": [
+      "TensorFlow",
+      "PyTorch",
+      "Scikit-learn",
+      "Keras",
+      "OpenCV",
+      "Jupyter Notebook",
+      "Google Colab",
+      "Pandas",
+      "NumPy",
+    ],
+    "UI/UX Design": [
+      "Figma",
+      "Adobe XD",
+      "Sketch",
+      "InVision",
+      "Framer",
+      "Canva",
+      "Zeplin",
+    ],
+    "Data Science": [
+      "Pandas",
+      "NumPy",
+      "Matplotlib",
+      "Seaborn",
+      "Jupyter Notebook",
+      "Google Colab",
+      "Tableau",
+      "Power BI",
+    ],
+  };
+
+  const Savedraft = () => {
+    console.log("selected techs are ",selectedTechnologies)
+  }
+
+  useEffect(() => {
+    // Reset selected technologies when category changes
+    setSelectedTechnologies([]);
+  }, [projectData.category]);
 
 
   return (
@@ -182,10 +303,38 @@ const SubmitProject = () => {
                 >
                   <option>Web Development</option>
                   <option>Mobile App</option>
+                  <option>Machine Learning</option>
                   <option>UI/UX Design</option>
                   <option>Data Science</option>
                 </select>
               </div>
+
+              <div>
+                <label className="block text-sm  font-medium mb-2">Technologies Used</label>
+                <div className="flex flex-wrap gap-4 bg-gray-700 p-4 rounded-lg ">
+                  {categoryTechnologies[projectData.category]?.map((tech, index) => (
+
+                    <div key={index} className="flex items-center gap-2 bg-gray-800 px-3 py-2 rounded-lg shadow hover:bg-gray-600 transition duration-200">
+                      <input
+                        type="checkbox"
+                        id={`tech-${index}`}
+                        value={tech}
+                        checked={selectedTechnologies.includes(tech)}
+                        onChange={(e) => {
+                          const { value, checked } = e.target;
+                          setSelectedTechnologies((prev) =>
+                            checked ? [...prev, value] : prev.filter((t) => t !== value)
+                          );
+                        }}
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                      />
+                      <label htmlFor={`tech-${index}`} className="text-sm flex items-center text-gray-300 cursor-pointer">
+                        <span className="font-medium">{tech}</span>
+                        <span className="text-lg ml-1">{technologyIcons[tech]}</span>
+                      </label>
+                    </div>
+                  ))}
+                </div> </div>
 
               <div className="mt-4">
                 <label className="block text-sm font-medium mb-2">
@@ -492,6 +641,7 @@ const SubmitProject = () => {
               <button
                 type="button"
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg"
+                onClick={Savedraft}
               >
                 Save Draft
               </button>
@@ -544,28 +694,28 @@ const SubmitProject = () => {
 
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-           
-          <svg
-            className="animate-spin h-10 w-10 text-blue-500 mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            ></path>
-          </svg>
-          <p className="text-lg font-medium text-gray-700">Uploading...</p>
+
+            <svg
+              className="animate-spin h-10 w-10 text-blue-500 mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            <p className="text-lg font-medium text-gray-700">Uploading...</p>
           </div>
         </div>
 
@@ -575,22 +725,22 @@ const SubmitProject = () => {
 
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-           
-          <svg
-            className="h-10 w-10 text-green-500 mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          <p className="text-lg font-medium text-gray-700">Uploaded Successfully!</p>
+
+            <svg
+              className="h-10 w-10 text-green-500 mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <p className="text-lg font-medium text-gray-700">Uploaded Successfully!</p>
           </div>
         </div>
 

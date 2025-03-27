@@ -213,6 +213,7 @@ const UserContextProvider = ({ children }) => {
               proheadComment: projectData.proheadComment,
               attachments: [],
               images: [],
+              technologies: projectData.technologies,
             }
           )
           .then(() => {
@@ -359,6 +360,27 @@ const UserContextProvider = ({ children }) => {
     console.log("current role is ", currentrole);
   };
 
+  const fetchStudentData = async (userId) => {
+    try {
+      const response = await databases.listDocuments(
+        database_id,
+        "67d08e060038dec0bac3",
+        [Query.equal("userid", userId)]
+      );
+
+      if (response.documents.length > 0) {
+        // const document = response.documents[0];
+        return response.documents[0];
+      } else {
+        console.error("Document not found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Failed to fetch student data", error);
+      return null;
+    }
+  }
+
   useEffect(() => {
     checkRole();
   }, [user]);
@@ -383,6 +405,7 @@ const UserContextProvider = ({ children }) => {
         recentProjects,
         fetchUserRoleFromCommonDB,
         getUserRole,
+        fetchStudentData
       }}
     >
       {children}
