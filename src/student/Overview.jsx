@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../context/contextApi';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 function Overview() {
   const { user, recentProjects, fetchRecentProjects } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
+  const { userId } = useParams();
 
   useEffect(() => {
     if (user) {
@@ -15,6 +16,11 @@ function Overview() {
       setIsLoading(false); // Stop loading if no user is found
     }
   }, [user, fetchRecentProjects]);
+
+  useEffect(() => {
+    console.log('User ID:', userId);
+    // Fetch user-specific data using the userId
+  }, [userId]);
 
   if (isLoading) {
     return (

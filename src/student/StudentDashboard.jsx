@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { account } from '../lib/appwrite';
-import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Profile from './Profile';
 import Projects from './Projects';
 import SubmitProject from './SubmitProject';
@@ -15,10 +15,17 @@ function StudentDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCurrentUser();
+    const fetchUser = async () => {
+      await getCurrentUser();
+      setLoading(false); // Set loading to false after fetching user data
+    };
+
+    fetchUser();
   }, []);
+
 
   const handleLogout = async () => {
     try {
@@ -34,14 +41,24 @@ function StudentDashboard() {
     setIsCollapsed(!isCollapsed);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+
+
   // Define the navigation items
   const navItems = [
-    { path: '/student-dash', label: 'Overview', icon: 'fas fa-home' },
-    { path: '/student-dash/notifications', label: 'Notifications', icon: 'fas fa-bell' },
-    { path: '/student-dash/profile', label: 'Profile', icon: 'fas fa-user' },
-    { path: '/student-dash/projects', label: 'Projects', icon: 'fas fa-project-diagram' },
-    { path: '/student-dash/submit-project', label: 'Submit Project', icon: 'fas fa-plus' },
-    { path: '/student-dash/project-status', label: 'Project Status', icon: 'fas fa-tasks' },
+    { path: `/student-dash`, label: 'Overview', icon: 'fas fa-home' },
+    { path: `/student-dash/notifications`, label: 'Notifications', icon: 'fas fa-bell' },
+    { path: `/student-dash/profile`, label: 'Profile', icon: 'fas fa-user' },
+    { path: `/student-dash/projects`, label: 'Projects', icon: 'fas fa-project-diagram' },
+    { path: `/student-dash/submit-project`, label: 'Submit Project', icon: 'fas fa-plus' },
+    { path: `/student-dash/project-status`, label: 'Project Status', icon: 'fas fa-tasks' },
   ];
 
   return (
@@ -62,13 +79,12 @@ function StudentDashboard() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex relative items-center p-3 rounded-lg ${
-                location.pathname === item.path ? 'bg-blue-600 text-white' : 'hover:bg-gray-800 text-gray-200'
-              }`}
+              className={`flex relative items-center p-3 rounded-lg ${location.pathname === item.path ? 'bg-blue-600 text-white' : 'hover:bg-gray-800 text-gray-200'
+                }`}
             >
               <i className={`${item.icon} w-5 mr-5`}></i>
               <span className={`ml-3 transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
-              
+
               {location.pathname === item.path && (
                 <motion.div
                   layoutId="activeTab"
@@ -95,7 +111,7 @@ function StudentDashboard() {
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto bg-black">
         <div className="w-full mx-auto">
-          <Routes>
+        <Routes>
             <Route path="/" element={<Overview />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/projects" element={<Projects />} />
