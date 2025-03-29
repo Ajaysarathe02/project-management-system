@@ -12,7 +12,7 @@ function Home() {
     const [role, setRole] = useState("student");
     const [loading, setLoading] = useState(false);
 
-    const {login} = useContext(UserContext)
+    const {login,user,fetchStudentData} = useContext(UserContext)
     const loginRef = useRef(null)
 
     // functions
@@ -28,8 +28,14 @@ function Home() {
             const response = login(email,pass);
             if(response){
                 toast.success(`user login successful`, { position: 'top-center' })
-                if (role === 'student') {navigate('/student-dash')}
-                if(role == 'hod'){}
+                if (role === 'student') 
+                    {
+                        
+                        navigate('/student-dash');
+                    }
+                if(role == 'hod'){
+                    navigate('/hod-dash')
+                }
                 if(role == 'project-head'){navigate('/projecthead-dash')}
             }
             

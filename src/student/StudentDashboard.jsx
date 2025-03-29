@@ -9,9 +9,10 @@ import StudentProfile from './StudentProfile';
 import { UserContext } from '../context/contextApi';
 import { motion } from 'motion/react';
 import Overview from './Overview';
+import StudentNotifications from './StudentNotifcations';
 
 function StudentDashboard() {
-  const { user, getCurrentUser } = useContext(UserContext);
+  const { user, getCurrentUser,studentDetailInfo,fetchStudentData } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -19,6 +20,7 @@ function StudentDashboard() {
 
   useEffect(() => {
     const fetchUser = async () => {
+      await fetchStudentData(user.$id);
       await getCurrentUser();
       setLoading(false); // Set loading to false after fetching user data
     };
@@ -117,6 +119,7 @@ function StudentDashboard() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/submit-project" element={<SubmitProject />} />
             <Route path="/project-status" element={<ProjectStatus />} />
+            <Route path="/notifications" element={<StudentNotifications />} />
             {/* Add more routes as needed */}
           </Routes>
         </div>

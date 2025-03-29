@@ -5,7 +5,6 @@ import { Link, useParams } from 'react-router-dom';
 function Overview() {
   const { user, recentProjects, fetchRecentProjects } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
-  const { userId } = useParams();
 
   useEffect(() => {
     if (user) {
@@ -17,10 +16,7 @@ function Overview() {
     }
   }, [user, fetchRecentProjects]);
 
-  useEffect(() => {
-    console.log('User ID:', userId);
-    // Fetch user-specific data using the userId
-  }, [userId]);
+
 
   if (isLoading) {
     return (

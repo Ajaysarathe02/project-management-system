@@ -2,5 +2,6 @@ import React ,{createContext} from 'react'
 
 const UserContext = createContext();
 const ProjectHeadContext = createContext();
+const HodContext = createContext();
 
-export {UserContext, ProjectHeadContext}
+export {UserContext, ProjectHeadContext, HodContext}

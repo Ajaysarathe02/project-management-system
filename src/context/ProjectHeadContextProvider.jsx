@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const ProjectHeadContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [projectHead, setProjectHead] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null); // State for profile picture
 
   // Signup logic for Project Head
   const signupProjectHead = async (
@@ -51,7 +52,7 @@ const ProjectHeadContextProvider = ({ children }) => {
             Name: phName,
           }
         );
-        console.log("user data set in common db ",userRole)
+        console.log("user data set in common db ", userRole)
         console.log("project head signup data ", user1);
 
       } else {
@@ -85,16 +86,55 @@ const ProjectHeadContextProvider = ({ children }) => {
         "67d08e46002ce8afea0f", // project-head collection
         userId
       );
+      
       setProjectHead(response);
+      return response
     } catch (error) {
       console.error("Error getting project head:", error);
+      return null
     }
   };
 
- 
+  // Generate file URL
+  const generateFileUrl = (fileId) => {
+    return `https://cloud.appwrite.io/v1/storage/buckets/67d541b9000f5101fd5d/files/${fileId}/view?project=67d013a6000a87361603`;
+  };
+
+ // Update project head profile picture
+ const updateProfilePicture = async (newPictureId) => {
+  try {
+    const pictureUrl = generateFileUrl(newPictureId);
+    setProfilePicture(pictureUrl); // Update the profile picture in the context
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+  }
+};
+
+// useEffect(() => {
+//   const fetchProjectHeadDetails = async () => {
+//     try {
+//       const currentHead = await getCurrentProjectHead(); // Await the current project head
+//       if (currentHead?.$id) {
+//         await getProjectHeadDetails(currentHead.$id); // Pass the valid user ID
+//         console.log(projectHead)
+//       } else {
+//         console.error("No current project head found.");
+//       }
+//     } catch (error) {
+//       console.error("Error fetching project head details:", error);
+//     }
+//   };
+
+//   fetchProjectHeadDetails(); // Call the async function
+// }, []);
+
   return (
     <ProjectHeadContext.Provider
-      value={{ signupProjectHead, loading, getCurrentProjectHead, getProjectHeadDetails,projectHead,setProjectHead }}
+      value={{
+        signupProjectHead, loading, getCurrentProjectHead, getProjectHeadDetails, projectHead, setProjectHead, profilePicture, // Expose profile picture state
+        setProfilePicture, // Expose profile picture setter
+        updateProfilePicture,
+      }}
     >
       {children}
     </ProjectHeadContext.Provider>

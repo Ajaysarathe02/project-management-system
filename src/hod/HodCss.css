@@ -1,0 +1,83 @@
+/* Add this to your CSS file */
+.project-assignment {
+    background-color: #1f2937; /* Dark gray background */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .project-assignment h4 {
+    font-size: 1.125rem; /* Slightly larger font size */
+    color: #ffffff; /* White text */
+  }
+  
+  .project-assignment .details {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+  
+  .project-assignment .details img {
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  .project-assignment .details .info {
+    margin-left: 0.75rem;
+  }
+  
+  .project-assignment .details .info p {
+    margin: 0;
+    color: #d1d5db; /* Light gray text */
+  }
+  
+  .project-assignment .details .info p:first-child {
+    font-weight: 500; /* Bold text for the name */
+  }
+
+  /* HodCss.css */
+
+/* Example styles for the modal */
+.modal-container {
+  background-color: #1f2937; /* Dark gray background */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff; /* White text */
+}
+
+.modal-content {
+  color: #d1d5db; /* Light gray text */
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-stage-1 {
+  background-color: #064e3b; /* Green background */
+  color: #6ee7b7; /* Light green text */
+}
+
+.badge-stage-2 {
+  background-color: #1e3a8a; /* Blue background */
+  color: #93c5fd; /* Light blue text */
+}
+
+.badge-pending {
+  background-color: #374151; /* Gray background */
+  color: #9ca3af; /* Light gray text */
+}

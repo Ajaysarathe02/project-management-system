@@ -12,6 +12,7 @@ const UserContextProvider = ({ children }) => {
   const [projects, setProjects] = useState([]);
   const [currentRole, setCurrentRole] = useState({});
   const [recentProjects, setRecentProjects] = useState([]);
+  const [studentDetailInfo, setStudentDetailInfo] = useState(null);
 
   const [projectFileAttachments, setProjectFileAttachments] =
     useState({
@@ -369,8 +370,9 @@ const UserContextProvider = ({ children }) => {
       );
 
       if (response.documents.length > 0) {
-        // const document = response.documents[0];
-        return response.documents[0];
+        const document = response.documents[0];
+        setStudentDetailInfo(document);
+        return document;
       } else {
         console.error("Document not found");
         return null;
@@ -405,7 +407,8 @@ const UserContextProvider = ({ children }) => {
         recentProjects,
         fetchUserRoleFromCommonDB,
         getUserRole,
-        fetchStudentData
+        fetchStudentData,
+        studentDetailInfo
       }}
     >
       {children}

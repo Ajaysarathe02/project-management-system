@@ -14,6 +14,7 @@ import "react-toastify/ReactToastify.css";
 import { UserContext } from "./context/contextApi";
 import { account } from "./lib/appwrite";
 import ProjectHeadDashBoard from "./prohead/ProjectHeadDashBoard";
+import HodDashboard from "./hod/HodDashboard";
 
 const App = () => {
   const { user, setUser, getUserRole } = useContext(UserContext);
@@ -27,6 +28,7 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/student-dash/*" element={<StudentDashboard />} />
+          <Route path="/hod-dash/*" element={<HodDashboard />} />
           <Route
             path="/projecthead-dash/*"
             element={<ProjectHeadDashBoard />}

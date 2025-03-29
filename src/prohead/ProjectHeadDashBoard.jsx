@@ -15,13 +15,17 @@ function ProjectHeadDashBoard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { getProjectHeadDetails, projectHead } = useContext(ProjectHeadContext);
+  const { getProjectHeadDetails, projectHead, setProjectHead } = useContext(ProjectHeadContext);
 
   const getProjectHead = async () => {
     try {
 
       const res = await account.get();
-      getProjectHeadDetails(res.$id);
+      const res1= await getProjectHeadDetails(res.$id);
+      setProjectHead(res1);
+      console.log("project head",res)
+      console.log("project head details ",res1)
+      console.log("project head details context ",projectHead)
 
     } catch (error) {
       console.error("Error fetching project head:", error);

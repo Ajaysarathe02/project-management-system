@@ -1,19 +1,43 @@
 import React, { useContext, useState, useEffect } from "react";
-import { UserContext } from "../context/contextApi";
+import { databases, database_id } from "../lib/appwrite"; // Import Appwrite configuration
+import { UserContext } from "../context/contextApi"; // Import UserContext
+import { Query } from "appwrite";
+
 const ProjectStatus = () => {
-  const { fetchProjects, user, projects } = useContext(UserContext);
+  const { user } = useContext(UserContext); // Get the logged-in user from context
+  const [projects, setProjects] = useState([]); // State to store projects
+  const [loading, setLoading] = useState(true); // State to handle loading
+
+  // Fetch projects for the logged-in student
+  const fetchProjects = async (studentId) => {
+    try {
+      setLoading(true);
+      const response = await databases.listDocuments(
+        database_id,
+        "67d08e5700221884ebb9", // Replace with your projects collection ID
+        [Query.equal("uploadBy", studentId)] // Fetch projects uploaded by the student
+      );
+      setProjects(response.documents); // Store projects in state
+    } catch (error) {
+      console.error("Failed to fetch projects:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
-      fetchProjects(user.$id);
+      fetchProjects(user.$id); // Fetch projects when the user is available
     }
-  }, [user, fetchProjects]);
+  }, [user]);
 
   return (
-    <div className="flex min-h-screen ">
+    <div className="flex min-h-screen bg-gray-900 text-white">
       <main className="w-full">
-        
         <div className="p-8">
+          <h1 className="text-2xl font-semibold mb-6">Project Status</h1>
+
+          {/* Project Summary */}
           <div className="grid grid-cols-4 gap-6 mb-8">
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="flex items-center">
@@ -35,7 +59,9 @@ const ProjectStatus = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-gray-400 text-sm">Pending</h3>
-                  <p className="text-white text-2xl font-semibold">2</p>
+                  <p className="text-white text-2xl font-semibold">
+                    {projects.filter((project) => project.hodStatus === "Pending").length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -46,7 +72,9 @@ const ProjectStatus = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-gray-400 text-sm">Approved</h3>
-                  <p className="text-white text-2xl font-semibold">0</p>
+                  <p className="text-white text-2xl font-semibold">
+                    {projects.filter((project) => project.hodStatus === "Approve").length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -57,125 +85,118 @@ const ProjectStatus = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-gray-400 text-sm">Rejected</h3>
-                  <p className="text-white text-2xl font-semibold">0</p>
+                  <p className="text-white text-2xl font-semibold">
+                    {projects.filter((project) => project.hodStatus === "Reject").length}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Recent Projects Table */}
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-6">
               Recent Projects
             </h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-gray-400 text-left">
-                    <th className="pb-4">Project Name</th>
-                    <th className="pb-4">Submission Date</th>
-                    <th className="pb-4">HOD Status</th>
-                    <th className="pb-4">Project Head Status</th>
-                    <th className="pb-4">HOD Comments</th>
-                    <th className="pb-4">Project Head Comments</th>
-                    <th className="pb-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="text-gray-300">
-                  {projects.map((data, index) => (
-                    <tr key={index} className="border-t border-gray-700">
-                      <td className="py-4">{data?.title}</td>
-                      <td>{data?.dueDate}</td>
-                      <td>
-                        <span
-                          className={
-                            data?.hodStatus === "not approved"
-                              ? `px-2 py-1 text-sm bg-red-500 bg-opacity-20 text-red-500 rounded`
-                              : `px-2 py-1 text-sm bg-green-500 bg-opacity-20 text-green-500 rounded`
-                          }
-                        >
-                          {data?.proheadStatus}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className={
-                            data?.proheadStatus === "not approved"
-                              ? `px-2 py-1 text-sm bg-red-500 bg-opacity-20 text-red-500 rounded`
-                              : `px-2 py-1 text-sm bg-green-500 bg-opacity-20 text-green-500 rounded`
-                          }
-                        >
-                          {data?.proheadStatus}
-                        </span>
-                      </td>
-                      <td>{data?.hodComment}</td>
-                      <td>{data?.proheadComment}</td>
-                      <td>
-                        <button className="text-custom hover:text-custom-600 !rounded-button">
-                          View Details
-                        </button>
-                      </td>
+            {loading ? (
+              <p className="text-gray-400">Loading projects...</p>
+            ) : projects.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-gray-400 text-left">
+                      <th className="pb-4">Project Name</th>
+                      <th className="pb-4">Submission Date</th>
+                      <th className="pb-4">HOD Status</th>
+                      <th className="pb-4">Project Head Status</th>
+                      <th className="pb-4">HOD Comments</th>
+                      <th className="pb-4">Project Head Comments</th>
+                      <th className="pb-4">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="text-gray-300">
+                    {projects.map((project, index) => (
+                      <tr key={index} className="border-t border-gray-700">
+                        <td className="py-4">{project.title}</td>
+                        <td>{new Date(project.dueDate).toLocaleDateString()}</td>
+                        <td>
+                          <span
+                            className={
+                              project.hodStatus === "Reject"
+                                ? `px-2 py-1 text-sm bg-red-500 bg-opacity-20 text-red-500 rounded`
+                                : project.hodStatus === "Approve"
+                                  ? `px-2 py-1 text-sm bg-green-500 bg-opacity-20 text-green-500 rounded`
+                                  : `px-2 py-1 text-sm bg-yellow-500 bg-opacity-20 text-yellow-500 rounded`
+                            }
+                          >
+                            {project.hodStatus || "Pending"}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={
+                              project.proheadStatus === "Reject"
+                                ? `px-2 py-1 text-sm bg-red-500 bg-opacity-20 text-red-500 rounded`
+                                : project.proheadStatus === "Approve"
+                                  ? `px-2 py-1 text-sm bg-green-500 bg-opacity-20 text-green-500 rounded`
+                                  : `px-2 py-1 text-sm bg-yellow-500 bg-opacity-20 text-yellow-500 rounded`
+                            }
+                          >
+                            {project.proheadStatus || "Pending"}
+                          </span>
+                        </td>
+                        <td>
+                          {project.hodComment ? (
+                            project.hodComment.length > 50 ? (
+                              <span>
+                                {`${project.hodComment.substring(0, 50)}... `}
+                                <button
+                                  className="text-blue-500 hover:underline"
+                                  onClick={() => alert(project.hodComment)} // Replace with a modal or tooltip if needed
+                                >
+                                  Read More
+                                </button>
+                              </span>
+                            ) : (
+                              project.hodComment
+                            )
+                          ) : (
+                            "No comments"
+                          )}
+                        </td>
+                        <td>
+                          {project.proheadComment ? (
+                            project.proheadComment.length > 50 ? (
+                              <span>
+                                {`${project.proheadComment.substring(0, 50)}... `}
+                                <button
+                                  className="text-blue-500 hover:underline"
+                                  onClick={() => alert(project.proheadComment)} // Replace with a modal or tooltip if needed
+                                >
+                                  Read More
+                                </button>
+                              </span>
+                            ) : (
+                              project.proheadComment
+                            )
+                          ) : (
+                            "No comments"
+                          )}
+                        </td>
+                        <td>
+                          <button className="text-custom hover:text-custom-600 !rounded-button">
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-400">No projects found.</p>
+            )}
           </div>
-
-          {/* <div className="grid grid-cols-2 gap-6 mt-8">
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-white mb-6">
-                Recent Notifications
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-start p-4 bg-gray-700 rounded-lg">
-                  <i className="fas fa-info-circle text-custom mt-1"></i>
-                  <div className="ml-4">
-                    <p className="text-white">
-                      Your AI Research Project has been approved
-                    </p>
-                    <p className="text-gray-400 text-sm">2 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start p-4 bg-gray-700 rounded-lg">
-                  <i className="fas fa-comment text-yellow-500 mt-1"></i>
-                  <div className="ml-4">
-                    <p className="text-white">
-                      New comment on ML Algorithm Analysis
-                    </p>
-                    <p className="text-gray-400 text-sm">5 hours ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-white mb-6">
-                Project Timeline
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-custom rounded-full"></div>
-                  <div className="ml-4">
-                    <p className="text-white">Project Submission</p>
-                    <p className="text-gray-400 text-sm">Jan 15, 2024</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  <div className="ml-4">
-                    <p className="text-white">Initial Review</p>
-                    <p className="text-gray-400 text-sm">Jan 18, 2024</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="ml-4">
-                    <p className="text-white">Final Approval</p>
-                    <p className="text-gray-400 text-sm">Jan 20, 2024</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 import { useState,useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { account ,ID, databases, database_id} from "./appwrite";
-import { ProjectHeadContext, UserContext } from "../context/contextApi";
+import { HodContext, ProjectHeadContext, UserContext } from "../context/contextApi";
 import { toast, ToastContainer } from "react-toastify";
 import { motion } from "motion/react";
 
@@ -13,7 +13,8 @@ const Signup = () => {
   const [notification, setNotification] = useState(false);
 
   const {signup} = useContext(UserContext);
-  const {signupProjectHead} = useContext(ProjectHeadContext)
+  const {signupProjectHead} = useContext(ProjectHeadContext);
+  const { signupHod } = useContext(HodContext); // Access HOD signup logic
   const navigate = useNavigate();
   const [loading,setLoading] = useState(false);
 
@@ -67,9 +68,37 @@ const Signup = () => {
     
   }
 
-  const handleHodSubmit = (e) => {
+
+  // for hod signup
+  const handleHodSubmit = async (e) => {
+
     e.preventDefault();
-    console.log(hodName, hodEmail, hodDepartment, hodDesignation, hodPassword);
+    // setLoading(true);
+    console.log(role)
+
+    try {
+      const response = await signupHod(hodName, hodEmail, hodPassword, hodDepartment, hodDesignation, role);
+      
+      setTimeout(() => {
+      if (response) {
+        toast.success(`${hodName} signed up successfully`, { position: "top-center" });
+        setLoading(false);
+
+        // Redirect to login page
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        setLoading(false);
+        toast.error("Signup failed", { position: "top-center" });
+      }
+    },4000)
+
+    } catch (error) {
+      console.error("Error during HOD signup:", error);
+      setLoading(false);
+      toast.error("Signup failed", { position: "top-center" });
+    }
   };
 
   // for project head signup
