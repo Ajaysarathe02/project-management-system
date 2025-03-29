@@ -58,6 +58,13 @@
   <img src="public/submit-project-2.png" alt="Modal Screenshot" width="80%">
 </p>
 
+### Project Preview
+<p align="center" style={{display:grid,padding:5px}}>
+  <img src="public/project-preview.png" alt="Modal Screenshot" width="45%">
+    <img src="public/project-status.png" alt="Modal Screenshot" width="45%">
+</p>
+
+
 ---
 
 ## 🛠️ Tech Stack
