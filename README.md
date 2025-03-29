@@ -41,13 +41,21 @@
 </p>
 
   ### Student Dashboard
-<p align="center">
+<div align="center">
   <img src="public/student-dash.png" alt="Modal Screenshot" width="80%">
-</p>
+</div>
 
   ### Student Profile
 <p align="center">
   <img src="public/student-profile.png" alt="Modal Screenshot" width="80%">
+</p>
+
+### Project Submission
+<p align="center">
+  <img src="public/submit-project-1.png" alt="Modal Screenshot" width="80%">
+</p>
+<p align="center">
+  <img src="public/submit-project-2.png" alt="Modal Screenshot" width="80%">
 </p>
 
 ---
