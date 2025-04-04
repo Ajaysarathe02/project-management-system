@@ -17,7 +17,7 @@ import { APPWRITE_CONFIG } from "../lib/appwriteConfig";
 
 function HodManageProjects() {
   const { user, fetchStudentData } = useContext(UserContext); // Access the logged-in HOD
-  const { hodUser } = useContext(HodContext); // Access HOD-specific context
+  const { hodUser,cachedProjects, setCachedProjects } = useContext(HodContext); // Access HOD-specific context
 
   const [projects, setProjects] = useState([]); // State to store assigned projects
   const [currentHod, setCurrentHod] = useState(""); // State for the current HOD
@@ -82,7 +82,7 @@ function HodManageProjects() {
 
       setProjects(projects); // Store assigned projects in state
       setProjectUploaderMap(uploaderMap);
-  
+      setCachedProjects(projects); // Cache the projects in context
 
 
     } catch (error) {
@@ -108,11 +108,11 @@ function HodManageProjects() {
 
 
   useEffect(() => {
-    if (hodUser) {
+    if (!cachedProjects) {
       // Fetch projects only if not cached
       fetchAssignedProjects();
     } 
-  }, [hodUser]);
+  }, [cachedProjects]);
 
   // Generate file download/view URL
   const generateFileUrl = (fileId) => {

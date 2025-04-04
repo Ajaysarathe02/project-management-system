@@ -5,13 +5,19 @@ import App from "./App.jsx";
 import UserContextProvider from "./context/UserContextProvider.jsx";
 import ProjectHeadContextProvider from "./context/ProjectHeadContextProvider.jsx";
 import HodContextProvider from "./context/HodContextProvider.jsx";
+import { StudentContextProvider } from "./context/StudentContextProvider.jsx";
+import ChatContextProvider from "./context/ChatContextProvider.jsx"
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserContextProvider>
       <ProjectHeadContextProvider>
         <HodContextProvider>
-          <App />
+          <StudentContextProvider>
+            <ChatContextProvider>
+            <App />
+            </ChatContextProvider>
+          </StudentContextProvider>
         </HodContextProvider>
       </ProjectHeadContextProvider>
     </UserContextProvider>

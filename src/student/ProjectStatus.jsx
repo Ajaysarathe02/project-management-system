@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { databases, database_id } from "../lib/appwrite"; // Import Appwrite configuration
 import { UserContext } from "../context/contextApi"; // Import UserContext
 import { Query } from "appwrite";
+import { APPWRITE_CONFIG } from "../lib/appwriteConfig";
 
 const ProjectStatus = () => {
   const { user } = useContext(UserContext); // Get the logged-in user from context
@@ -13,8 +14,8 @@ const ProjectStatus = () => {
     try {
       setLoading(true);
       const response = await databases.listDocuments(
-        database_id,
-        "67d08e5700221884ebb9", // Replace with your projects collection ID
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.PROJECTS, // Replace with your projects collection ID
         [Query.equal("uploadBy", studentId)] // Fetch projects uploaded by the student
       );
       setProjects(response.documents); // Store projects in state
@@ -104,9 +105,10 @@ const ProjectStatus = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="text-gray-400 text-left">
+                    <tr className="text-white text-left">
                       <th className="pb-4">Project Name</th>
                       <th className="pb-4">Submission Date</th>
+                      <th className="pb-4">Deadline Date</th>
                       <th className="pb-4">HOD Status</th>
                       <th className="pb-4">Project Head Status</th>
                       <th className="pb-4">HOD Comments</th>
@@ -119,6 +121,7 @@ const ProjectStatus = () => {
                       <tr key={index} className="border-t border-gray-700">
                         <td className="py-4">{project.title}</td>
                         <td>{new Date(project.dueDate).toLocaleDateString()}</td>
+                        <td>{project.revisionDeadline}</td>
                         <td>
                           <span
                             className={

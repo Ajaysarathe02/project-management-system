@@ -110,23 +110,6 @@ const ProjectHeadContextProvider = ({ children }) => {
   }
 };
 
-// useEffect(() => {
-//   const fetchProjectHeadDetails = async () => {
-//     try {
-//       const currentHead = await getCurrentProjectHead(); // Await the current project head
-//       if (currentHead?.$id) {
-//         await getProjectHeadDetails(currentHead.$id); // Pass the valid user ID
-//         console.log(projectHead)
-//       } else {
-//         console.error("No current project head found.");
-//       }
-//     } catch (error) {
-//       console.error("Error fetching project head details:", error);
-//     }
-//   };
-
-//   fetchProjectHeadDetails(); // Call the async function
-// }, []);
 
   return (
     <ProjectHeadContext.Provider

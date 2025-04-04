@@ -9,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import ProjectHeadReports from './ProjectHeadReports'
 import ProjectHeadSettings from './ProjectHeadSettings'
 import ProjectHeadManageProjects from './ProjectHeadManageProjects';
+import ProjectHeadChat from './ProjectHeadChat';
 
 function ProjectHeadDashBoard() {
 
@@ -16,24 +17,34 @@ function ProjectHeadDashBoard() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { getProjectHeadDetails, projectHead, setProjectHead } = useContext(ProjectHeadContext);
+  const [loading, setLoading] = useState(true); // Add a loading state
+
 
   const getProjectHead = async () => {
     try {
-
       const res = await account.get();
-      const res1= await getProjectHeadDetails(res.$id);
+      const res1 = await getProjectHeadDetails(res.$id);
       setProjectHead(res1);
-      console.log("project head",res)
-      console.log("project head details ",res1)
-      console.log("project head details context ",projectHead)
-
     } catch (error) {
       console.error("Error fetching project head:", error);
+      toast.error("Failed to load project head data.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false); // Set loading to false after fetching data
     }
-  }
+  };
+  
+
   useEffect(() => {
-  getProjectHead()
-  }, [])
+    if (!projectHead) {
+      // Fetch data only if it doesn't already exist
+      getProjectHead();
+    } else {
+      setLoading(false); // If data already exists, skip fetching
+    }
+  }, [projectHead]);
   
 
   const toggleCollapse = () => {
@@ -78,7 +89,25 @@ function ProjectHeadDashBoard() {
       label: "Settings",
       icon: "fas fa-cog",
     },
+    {
+      path: "/projecthead-dash/chat",
+      label: "Chat",
+      icon: "fas fa-plus",
+    },
   ];
+
+  if (loading) {
+    // Show a loading spinner or message while data is being fetched
+    return (
+      <div className="flex items-center justify-center h-screen bg-black text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mb-4"></div>
+
+          <p className="text-lg font-medium">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen text-white bg-black">
@@ -170,6 +199,7 @@ function ProjectHeadDashBoard() {
             />
             <Route path="/reports" element={<ProjectHeadReports />} />
             <Route path="/settings" element={<ProjectHeadSettings />} />
+            <Route path="/chat" element={<ProjectHeadChat />} />
 
             {/* Add more routes as needed */}
           </Routes>

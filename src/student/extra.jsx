@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/contextApi";
 import { client, databases, database_id, ID, account, storage } from "../lib/appwrite";
+import { Query } from "appwrite";
 
 
 function StudentProfile() {
@@ -12,6 +13,7 @@ function StudentProfile() {
     const [studentPicture, setStudentPicture] = useState(null);
     const [studentTempPic, setStudentTempPic] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+    const [uploadStatus, setUploadStatus] = useState("idle");
 
     const [editableData, setEditableData] = useState({
         name: user?.name || "",
@@ -47,7 +49,16 @@ function StudentProfile() {
                 cgpa: studentData.CGPA,
             }));
         }
+
+        if (studentData != null) {
+            const data = generateFileUrl(studentData.userPicture)
+            setStudentTempPic(data)
+        }
+
+
     }, [studentData]);
+
+
 
     const [academicData, setAcademicData] = useState({
         enrollmentNumber: "",
@@ -57,8 +68,8 @@ function StudentProfile() {
     });
 
     // update the information of the user
-    const updateStudentInfo = async (e) => {
-        e.preventDefault();
+    const updateStudentInfo = async () => {
+        event.preventDefault();
 
         try {
             // checking if student is available in the database
@@ -84,16 +95,19 @@ function StudentProfile() {
                         Semester: academicData.year,
 
                     }
-                ).then(() => { alert("Student information updated successfully") });
+                ).then(() => { return true });
 
             } else {
                 alert("Student not found in the database");
+                return false
             }
 
 
         }
         catch (error) {
             console.log("Error: ", error);
+            return false
+            throw error;
         }
     }
 
@@ -120,12 +134,12 @@ function StudentProfile() {
 
     // Upload profile picture to the server
     const uploadProfilePicture = async () => {
+        setUploadStatus("uploading");
+
         if (!studentPicture) {
             alert("Please select a profile picture first.");
             return;
         }
-
-        const updatedPic = [];
 
         try {
             const fileId = ID.unique(); // Generate a unique ID for the file
@@ -136,30 +150,48 @@ function StudentProfile() {
             );
 
             if (picID) {
-                updatedPic.push({
-                    imageId: picID.$id,
-                    imageName: studentPicture.name,
-                    imageSize: studentPicture.size,
-                    imageType: studentPicture.type,
-                });
+                if (studentData?.userPicture) {
 
+                    try {
+                        // deleting old picture
+                        await storage.deleteFile(
+                            "67d541b9000f5101fd5d",
+                            studentData?.userPicture
+                        ).then(() => console.log("old picture deleting successfully"));
+
+                    } catch (e) {
+                        alert("old picture error")
+                        setUploadStatus("idle");
+                    }
+
+                }
+
+                // update the profile picture
                 const updatePICinCollection = await databases.updateDocument(
                     database_id,
                     "67d08e060038dec0bac3", // student collection
-                    user?.$id,
+                    user.$id,
                     {
-                        userPicture: updatedPic
+                        userPicture: picID.$id
                     }
                 )
 
                 if (updatePICinCollection) {
-                    alert("Profile picture uploaded successfully!");
+                    setUploadStatus("success");
+                    setStudentTempPic(generateFileUrl(picID.$id))
+                    setIsModalOpen(false);
+
                 }
 
             } else {
                 console.log("image uploading error ")
+                setUploadStatus("idle");
             }
 
+            setTimeout(() => {
+                setUploadStatus("idle")
+                // for clear form
+            }, 2000)
 
         } catch (error) {
             console.error("Error uploading profile picture:", error);
@@ -186,13 +218,35 @@ function StudentProfile() {
     };
 
     // Save changes and exit edit mode
-    const handleSave = () => {
-        // Here, you can send the updated data to the server if needed
-        console.log("Updated Profile Data:", editableData);
-        console.log("Updated Academic Data:", academicData);
-        console.log("Updated Bio:", bio);
-        updateStudentInfo();
-        setIsEditing(false);
+    const handleSave = async () => {
+        setUploadStatus("uploading");
+        try {
+            // Call the function to update student info in the database
+            const res = await updateStudentInfo();
+
+            if (res) { setUploadStatus("success"); }
+            // Fetch the updated student data
+            const updatedData = await fetchStudentData(user.$id);
+            setStudentData(updatedData); // Update the state with the new data
+            setIsEditing(false); // Exit edit mode
+
+            setTimeout(() => {
+                setUploadStatus("idle")
+                // for clear form
+            }, 3000)
+
+
+        } catch (error) {
+            console.error("Failed to save profile:", error);
+            alert("Failed to save profile. Please try again.");
+            setUploadStatus("idle")
+        }
+    };
+
+    // Generate file download/view URL
+    const generateFileUrl = (fileId) => {
+        // const image = JSON.parse(fileId);
+        return `https://cloud.appwrite.io/v1/storage/buckets/67d541b9000f5101fd5d/files/${fileId}/view?project=67d013a6000a87361603`;
     };
 
     // Cancel editing and reset changes
@@ -231,8 +285,8 @@ function StudentProfile() {
                 <h1 className="text-2xl font-semibold text-white">Profile</h1>
                 <p className="mt-2 text-gray-400">View and edit your profile details</p>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-1">
+                <div className="">
+                    <div className="">
                         <div className="bg-gray-800 shadow rounded-lg p-6">
                             <div className="text-center">
                                 <div className="relative inline-block">
@@ -240,8 +294,8 @@ function StudentProfile() {
                                     <img
                                         className="h-32 w-32 rounded-full object-cover mx-auto"
                                         src={
-                                            studentTempPic ||
-                                            "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png"
+                                            studentTempPic ? studentTempPic
+                                                : "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png"
                                         }
                                         alt="Profile photo"
                                     />
@@ -251,6 +305,8 @@ function StudentProfile() {
                                     >
                                         <i className="fas fa-camera"></i>
                                     </label>
+
+
 
                                     {isModalOpen && (
                                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -288,6 +344,17 @@ function StudentProfile() {
                                     )}
 
                                 </div>
+
+                                <div className="mt-10">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Student ID :
+                                    </label>
+
+                                    <p className="mt-1 text-white">
+                                        {studentData.Roll}
+                                    </p>
+
+                                </div>
                             </div>
 
                             {/* Bio Section */}
@@ -306,9 +373,9 @@ function StudentProfile() {
                             </div>
                         </div>
 
-                        <div className="lg:col-span-2 space-y-8">
+                        <div className=" space-y-8">
                             {/* Personal Information Section */}
-                            <div className="bg-gray-800 shadow rounded-lg p-6">
+                            <div className="bg-gray-800 shadow rounded-lg p-6 mt-8">
                                 <h3 className="text-lg font-semibold text-white mb-6">
                                     Personal Information
                                 </h3>
@@ -413,7 +480,7 @@ function StudentProfile() {
                                         </label>
 
                                         <p className="mt-1 text-white">
-                                            {academicData.enrollmentNumber}
+                                            {studentData.Roll}
                                         </p>
 
                                     </div>
@@ -422,20 +489,27 @@ function StudentProfile() {
                                             Course
                                         </label>
                                         {isEditing ? (
-                                            <input
-                                                type="text"
+                                            <select
+
                                                 name="course"
                                                 value={academicData.course}
                                                 onChange={handleAcademicChange}
                                                 className="mt-1 w-full bg-gray-700 text-white rounded-lg p-2"
-                                            />
+                                            >
+                                                <option>Select Course</option>
+                                                <option>Computer Science</option>
+                                                <option>Electrical</option>
+                                                <option>Civil </option>
+                                                <option>Mechanical</option>
+                                                <option>Artificial Intelligense</option>
+                                            </select>
                                         ) : (
                                             <p className="mt-1 text-white">{academicData.course}</p>
                                         )}
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-300">
-                                            Year
+                                            Semester
                                         </label>
                                         {isEditing ? (
                                             <input
@@ -501,6 +575,62 @@ function StudentProfile() {
                     </div>
                 </div >
             </div >
+            {/* overlay for uploading animation */}
+            {uploadStatus === "uploading" &&
+
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+
+                        <svg
+                            className="animate-spin h-10 w-10 text-blue-500 mb-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            ></circle>
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            ></path>
+                        </svg>
+                        <p className="text-lg font-medium text-gray-700">Uploading...</p>
+                    </div>
+                </div>
+
+            }
+
+            {uploadStatus === "success" &&
+
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+
+                        <svg
+                            className="h-10 w-10 text-green-500 mb-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                            />
+                        </svg>
+                        <p className="text-lg font-medium text-gray-700">Uploaded Successfully!</p>
+                    </div>
+                </div>
+
+            }
         </div>
 
     )

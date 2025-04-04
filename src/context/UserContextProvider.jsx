@@ -5,6 +5,7 @@ import { Query } from "appwrite";
 import { storage } from "../lib/appwrite";
 import { useNavigate } from "react-router-dom";
 import { a, pre } from "motion/react-client";
+import { APPWRITE_CONFIG } from "../lib/appwriteConfig";
 
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState("");
@@ -39,8 +40,8 @@ const UserContextProvider = ({ children }) => {
   const fetchRecentProjects = async (userId) => {
     try {
       const response = await databases.listDocuments(
-        database_id,
-        "67d08e5700221884ebb9", // projects collection
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.PROJECTS, // projects collection
         [
           Query.equal("uploadBy", userId),
           Query.orderDesc("$createdAt"),
@@ -195,8 +196,8 @@ const UserContextProvider = ({ children }) => {
         const projectId = ID.unique();
         await databases
           .createDocument(
-            database_id,
-            "67d08e5700221884ebb9", // projects collection
+            APPWRITE_CONFIG.DATABASE_ID,
+            APPWRITE_CONFIG.COLLECTIONS.PROJECTS, // projects collection
             projectId, // unique id for project
             {
               projectId: projectId,
@@ -222,8 +223,8 @@ const UserContextProvider = ({ children }) => {
           });
 
           const projectCollectionRes = await databases.listDocuments(
-            database_id,
-            "67d08e5700221884ebb9",
+            APPWRITE_CONFIG.DATABASE_ID,
+            APPWRITE_CONFIG.COLLECTIONS.PROJECTS,
             [Query.equal("projectId", projectId)]
           );
 
@@ -240,8 +241,8 @@ const UserContextProvider = ({ children }) => {
               JSON.stringify(uploadedImages),
             ];
             await databases.updateDocument(
-              database_id,
-              "67d08e5700221884ebb9",
+              APPWRITE_CONFIG.DATABASE_ID,
+              APPWRITE_CONFIG.COLLECTIONS.PROJECTS,
               projectId,
               {
                 attachments: updatedProjectFiles,
@@ -359,13 +360,14 @@ const UserContextProvider = ({ children }) => {
     setCurrentRole(currentrole);
     console.log("current user is ", current);
     console.log("current role is ", currentrole);
+    return currentrole;
   };
 
   const fetchStudentData = async (userId) => {
     try {
       const response = await databases.listDocuments(
-        database_id,
-        "67d08e060038dec0bac3",
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.STUDENTS,
         [Query.equal("userid", userId)]
       );
 
@@ -408,7 +410,8 @@ const UserContextProvider = ({ children }) => {
         fetchUserRoleFromCommonDB,
         getUserRole,
         fetchStudentData,
-        studentDetailInfo
+        studentDetailInfo,
+        checkRole
       }}
     >
       {children}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { databases, database_id,ID, account } from "../lib/appwrite"; // Import Appwrite configuration
+import { databases, database_id, ID, account } from "../lib/appwrite"; // Import Appwrite configuration
 import { storage } from "../lib/appwrite"; // Import Appwrite storage
 import { ProjectHeadContext, UserContext } from "../context/contextApi";
+import { div } from "motion/react-client";
+import { APPWRITE_CONFIG } from "../lib/appwriteConfig";
 
 function ProjectHeadManageProjects() {
 
@@ -21,9 +23,12 @@ function ProjectHeadManageProjects() {
 
   const [rating, setRating] = useState(0); // State to store the selected rating
   const [feedback, setFeedback] = useState("no feedback");
-  const [projectStatus,setProjectStatus] = useState("");
-    const { projectHead, setProjectHeadPicture,getProjectHeadDetails } = useContext(ProjectHeadContext); // Access context
-  
+  const [projectStatus, setProjectStatus] = useState("");
+  const { projectHead, setProjectHeadPicture, getProjectHeadDetails } = useContext(ProjectHeadContext); // Access context
+  const [revisionHistory,SetRevisionHistory] = useState({})
+
+  const [revisionDeadline, setRevisionDeadline] = useState(""); // for request revision deadline
+
 
   const filteredProjects = projects
     .filter((project) => {
@@ -57,8 +62,8 @@ function ProjectHeadManageProjects() {
   const fetchProjects = async () => {
     try {
       const response = await databases.listDocuments(
-        database_id,
-        "67d08e5700221884ebb9" // Replace with your projects collection ID
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.PROJECTS // Replace with your projects collection ID
       );
       const projects = response.documents;
 
@@ -83,6 +88,9 @@ function ProjectHeadManageProjects() {
       console.error("Failed to fetch projects:", error);
     }
   };
+
+  // Count approved projects
+  const approvedProjectsCount = projects.filter(project => project.proheadStatus === "Approve").length;
 
   // Fetch registered HODs
   const fetchHods = async () => {
@@ -112,6 +120,7 @@ function ProjectHeadManageProjects() {
     getProjectHead()
     fetchProjects();
     fetchHods();
+   
   }, []);
 
   // Handle card click to open modal
@@ -120,6 +129,7 @@ function ProjectHeadManageProjects() {
     setSelectedProject(project); // Set the selected project
     setProjectUploader(projectUploaderMap[project.$id]); // Set the project uploader
     setProjectFiles(JSON.parse(project.attachments)); // Parse and store project files
+    SetRevisionHistory(JSON.parse(project.revisionHistory));
     setRating(project.rating || 0);
     setIsModalOpen(true);
 
@@ -135,7 +145,7 @@ function ProjectHeadManageProjects() {
   // Generate file download/view URL
   const generateFileUrl = (fileId) => {
     const image = JSON.parse(fileId)
-    console.log(image[0].imageId)
+
     return `https://cloud.appwrite.io/v1/storage/buckets/67d541b9000f5101fd5d/files/${image[0].imageId}/view?project=67d013a6000a87361603`;
   };
 
@@ -174,6 +184,7 @@ function ProjectHeadManageProjects() {
 
   // submit feedback logic
   const handleFeedbackSubmit = async () => {
+
     if (!assignedHod) {
       alert("Please select a reviewer.");
       return;
@@ -184,7 +195,7 @@ function ProjectHeadManageProjects() {
       return;
     }
 
-    if(!feedback){
+    if (!feedback) {
       alert("Please give your feedback .");
       return;
     }
@@ -192,8 +203,8 @@ function ProjectHeadManageProjects() {
     try {
       // Update the project with feedback, status, assigned HOD, and rating
       const response = await databases.updateDocument(
-        database_id,
-        "67d08e5700221884ebb9", // Replace with your projects collection ID
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.PROJECTS, // Replace with your projects collection ID
         selectedProject.$id,
         {
           proheadStatus: projectStatus,
@@ -201,6 +212,7 @@ function ProjectHeadManageProjects() {
           assignedReviewer: assignedHod, // Assign the selected HOD
           rating: rating, // Add the rating
           assignedBy: projectHead.Name,
+          proheadId: projectHead.userid,
         }
       );
 
@@ -228,11 +240,11 @@ function ProjectHeadManageProjects() {
           "67d08e62003a0547f663", // Replace with your notifications collection ID
           ID.unique(), // Generate a unique ID for the notification
           {
-            studentId: hod.$id, // The ID of the assigned HOD
+            hodId: hod.$id, // The ID of the assigned HOD
             message: `You have been assigned to review the project "${selectedProject.title}".`,
             isRead: false, // Mark the notification as unread
             timestamp: new Date().toLocaleString(), // Current timestamp
-           
+
           }
         );
       }
@@ -246,6 +258,71 @@ function ProjectHeadManageProjects() {
     } catch (error) {
       console.error("Failed to submit feedback:", error);
       alert("Failed to submit feedback. Please try again.");
+    }
+  };
+
+  // submit feedback while reuqest revision selected
+  const handleRequestRevision = async () => {
+
+    if (!feedback) {
+      alert("Please provide feedback for the requested revision.");
+      return;
+    }
+
+    if (!revisionDeadline) {
+      alert("Please set a deadline for the revision.");
+      return;
+    }
+
+    try {
+      // for revision tracking system
+      const revisionEntry = {
+        feedback: feedback,
+        deadline: revisionDeadline,
+        timestamp: new Date().toLocaleString(),
+        requestedBy: projectHead.Name,
+      };
+      // Update the project with the "Request Revision" status and feedback
+      const response = await databases.updateDocument(
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.PROJECTS,
+        selectedProject.$id,
+        {
+          proheadId:projectHead.userid,
+          proheadStatus: projectStatus,
+          proheadComment: feedback,
+          assignedReviewer: null, // Clear reviewer since it's a revision request
+          requestedRevisionBy: projectHead.Name,
+          revisionDeadline: revisionDeadline, // for deadline
+          revisionHistory: [...(selectedProject.revisionHistory || []), JSON.stringify(revisionEntry)], // Append to revision history
+        }
+      );
+
+      if (response) {
+        // Notify the student about the revision request
+        await databases.createDocument(
+          APPWRITE_CONFIG.DATABASE_ID,
+          APPWRITE_CONFIG.COLLECTIONS.NOTIFICATIONS, // Replace with your notifications collection ID
+          ID.unique(),
+          {
+            studentId: selectedProject.uploadBy,
+            message: `Your project "${selectedProject.title}" requires revisions. Please check the feedback provided by the project head.`,
+            isRead: false,
+            timestamp: new Date().toLocaleString(),
+            requestedRevisionBy: `Project Head - ${projectHead.Name}`,
+            projectHeadId: projectHead.userid,
+          }
+        );
+
+        alert("Revision requested successfully.");
+        fetchProjects(); // Refresh the project list
+        handleCloseClick(); // Close the modal
+      } else {
+        console.error("Failed to request revision:");
+      }
+    } catch (error) {
+      console.error("Failed to request revision:", error);
+      alert("Failed to request revision. Please try again.");
     }
   };
 
@@ -293,7 +370,7 @@ function ProjectHeadManageProjects() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-400 truncate">Approved Projects</dt>
-                      <dd className="text-lg font-semibold text-white">0</dd>
+                      <dd className="text-lg font-semibold text-white">{approvedProjectsCount}</dd>
                     </dl>
                   </div>
                 </div>
@@ -381,9 +458,9 @@ function ProjectHeadManageProjects() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-white">{project.title}</h3>
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${project.proheadStatus === "Approved"
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${project.proheadStatus === "Approve"
                         ? "bg-green-900 text-green-300"
-                        : project.proheadStatus === "Rejected"
+                        : project.proheadStatus === "Rejecte"
                           ? "bg-red-900 text-red-300"
                           : "bg-yellow-900 text-yellow-300"
                         }`}
@@ -448,23 +525,49 @@ function ProjectHeadManageProjects() {
                           <p className="text-sm text-gray-400">Submitted: {new Date(selectedProject.$createdAt).toLocaleString()}</p>
                           <p className="text-sm text-gray-400">Category: {selectedProject.category}</p>
                         </div>
+
                         <div className="space-y-2">
                           <h4 className="font-medium text-white">Project Status</h4>
+                          {/* Project Head Approval Badge */}
+                          <div className="flex items-center space-x-2">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                                         ${selectedProject.proheadStatus === "Approve"
+                                  ? "bg-green-900 text-green-300"
+                                  : "bg-gray-700 text-gray-400"
+                                }`}
+                            >
+                              {selectedProject.proheadStatus === "Approve"
+                                ? "Stage 1: Approved by Project Head"
+                                : "Stage 1: Pending Approval"}
+                            </span>
+                            {selectedProject.proheadStatus === "Approve" && (
+                              <i className="fas fa-check-circle text-green-300"></i>
+                            )}
+                          </div>
 
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${selectedProject.proheadStatus === "Approved"
-                              ? "bg-green-900 text-green-300"
-                              : selectedProject.proheadStatus === "Rejected"
-                                ? "bg-red-900 text-red-300"
-                                : "bg-yellow-900 text-yellow-300"
-                              }`}
-                          >
-                            {selectedProject.proheadStatus || "Pending"}
-                          </span>
-
+                          {/* HOD Approval Badge */}
+                          <div className="flex items-center space-x-2 mt-2">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium 
+                                                        ${selectedProject.hodStatus === "Approve"
+                                  ? "bg-blue-900 text-blue-300"
+                                  : "bg-gray-700 text-gray-400"
+                                }`}
+                            >
+                              {selectedProject.hodStatus === "Approve"
+                                ? "Stage 2: Approved by HOD"
+                                : "Stage 2: Pending Approval"}
+                            </span>
+                            {selectedProject.hodStatus === "Approve" && (
+                              <i className="fas fa-check-circle text-blue-300"></i>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-6"><div className="mt-6"><h4 className="font-medium text-white">Project Timeline</h4><div className="mt-2 flex items-center space-x-4"><div className="flex-1"><div className="h-2 bg-gray-700 rounded-full"><div className="h-2 bg-custom rounded-full w-[75%]" ></div></div></div><span className="text-sm text-gray-400">75% Complete</span></div><div className="mt-2 flex justify-between text-sm text-gray-400"><span>Start: Jan 1, 2024</span><span>Due: Feb 15, 2024</span></div></div>
+                      <div className="mt-6">
+
+
                         <h4 className="font-medium text-white mt-5">Project Description</h4>
                         <p className="mt-2 text-sm text-gray-400">{selectedProject.description}</p>
                       </div>
@@ -529,86 +632,171 @@ function ProjectHeadManageProjects() {
 
                           </div></div>
                       </div>
+
+                      {/* revision history */}
                       <div className="mt-6">
-                        <h4 className="font-medium text-white">Feedback</h4>
-                        <div className="mt-2">
-                          <textarea rows="4"
-                            className="block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-custom focus:ring-custom sm:text-sm"
-                            placeholder="Enter your feedback here..."
-                            value={feedback}
-                            onChange={(e) => setFeedback(e.target.value)}
-                          >
-                          </textarea>
+                        <h4 className="font-medium text-white">Revision History</h4>
+                        {selectedProject.revisionHistory?.length > 0 ? (
+                          
+                          <ul className="mt-2 text-sm text-gray-400 list-decimal list-inside">
+                              <li>
+                                <strong>{revisionHistory.timestamp} - </strong>
+                                <strong>{revisionHistory.feedback} - </strong>
+                                <strong>{revisionHistory.deadline}  </strong>
+                          
+                              </li>
+                            
+                          </ul>
+                        ) : (
+                          <p className="mt-2 text-sm text-gray-400">No revisions requested yet.</p>
+                        )}
+                      </div>
+
+                      <div className="mt-6">
+
+                        {/* Feedback Section */}
+                        <div className="mt-6">
+                          <h4 className="font-medium text-white">Feedback</h4>
+                          {selectedProject.proheadStatus === "Approve" ? (
+                            <p className="mt-2 text-sm text-gray-400">{selectedProject.proheadComment || "No feedback provided."}</p>
+                          ) : (
+                            <div className="mt-2">
+                              <textarea
+                                rows="4"
+                                className="block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-custom focus:ring-custom sm:text-sm"
+                                placeholder="Enter your feedback here..."
+                                value={feedback}
+                                onChange={(e) => setFeedback(e.target.value)}
+                              ></textarea>
+                            </div>
+                          )}
                         </div>
 
-
+                        {/* rating, status, assign reviewer section */}
                         <div className="mt-4 flex items-center space-x-4">
 
-                          {/* rating system */}
+                          {/* Rating Section */}
                           <div className="mt-6">
                             <h4 className="font-medium text-white">Rating</h4>
-                            <h6>select rating</h6>
-                            <div className="flex items-center mt-2">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <i
-                                  key={star}
-                                  className={`fas fa-star cursor-pointer ${star <= rating ? "text-yellow-400" : "text-gray-500"
-                                    }`}
-                                  onClick={() => setRating(star)} // Set the rating when a star is clicked
-                                ></i>
-                              ))}
-                            </div>
-
-                           {/* given rating */}
-                            <div className="mt-4 flex items-center">
-                              <p className="text-sm font-medium text-white">Rating:</p>
-                              <div className="ml-2 flex">
+                            {selectedProject.proheadStatus === "Approve" ? (
+                              <div className="mt-2 flex">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                   <i
                                     key={star}
-                                    className={`fas fa-star ${star <= selectedProject.rating ? "text-yellow-400" : "text-gray-500"
-                                      }`}
+                                    className={`fas fa-star ${star <= selectedProject.rating ? "text-yellow-400" : "text-gray-500"}`}
                                   ></i>
                                 ))}
                               </div>
-                            </div>
-
+                            ) : (
+                              <div className="flex items-center mt-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <i
+                                    key={star}
+                                    className={`fas fa-star cursor-pointer ${star <= rating ? "text-yellow-400" : "text-gray-500"}`}
+                                    onClick={() => setRating(star)}
+                                  ></i>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
+                          {/* Status Update Section */}
+                          <div className="mt-6">
+                            <h4 className="font-medium text-white">Status</h4>
+                            {selectedProject.proheadStatus === "Approve" ? (
+                              <p className="mt-2 text-sm text-gray-400">{selectedProject.proheadStatus}</p>
+                            ) : (
+                              <select
+                                onChange={(e) => setProjectStatus(e.target.value)}
+                                className="rounded-md border-gray-700 bg-gray-700 text-white py-2 pl-3 pr-10 text-sm focus:border-custom focus:outline-none focus:ring-custom !rounded-button"
+                              >
+                                <option>Update Status</option>
+                                <option>Approve</option>
+                                <option>Reject</option>
+                                <option>Request Revision</option>
+                              </select>
+                            )}
+                          </div>
 
-                          <select onChange={(e) => setProjectStatus(e.target.value)} className="rounded-md border-gray-700 bg-gray-700 text-white py-2 pl-3 pr-10 text-sm focus:border-custom focus:outline-none focus:ring-custom !rounded-button">
-                            <option>Update Status</option>
-                            <option>Approve</option>
-                            <option>Reject</option>
-                            <option>Request Revision</option>
-                          </select>
-                          <button className="ml-4 inline-flex items-center px-3 py-2 border border-gray-600 rounded-md text-sm text-gray-300 bg-gray-800 hover:bg-gray-700">
-                            <i className="fas fa-flag mr-2"></i>Flag Issue</button>
-                          <select
-                            value={assignedHod}
-                            onChange={(e) => setAssignedHod(e.target.value)}
-                            className="ml-4 rounded-md border-gray-700 bg-gray-700 text-white py-2 pl-3 pr-10 text-sm focus:border-custom focus:outline-none focus:ring-custom !rounded-button"
-                            id="assign-reviewer"
-                          >
-                            <option value="">Assign Reviewer</option>
+                          {selectedProject.proheadStatus === "Approve" ? <div></div> :
+                            <button className="ml-4 mt-12 inline-flex items-center px-3 py-2 border border-gray-600 rounded-md text-sm text-gray-300 bg-gray-800 hover:bg-gray-700">
+                              <i className="fas fa-flag mr-2"></i>Flag Issue</button>
+                          }
 
-                            {hods.map((hod) => (
-                              <option key={hod.$id} value={hod.Name}>
-                                {hod.Name} - {hod.Department}
-                              </option>
-                            ))}
-                          </select>
+
+                          {/* Assign Reviewer Section */}
+                          <div className="ml-4 mt-6 ">
+                            <h4 className="font-medium text-white">Assign Reviewer</h4>
+                            {selectedProject.proheadStatus === "Approve" ? (
+                              <p className="mt-2 text-sm text-gray-400">{selectedProject.assignedReviewer || "No reviewer assigned."}</p>
+                            ) : (
+                              <select
+                                value={assignedHod}
+                                onChange={(e) => setAssignedHod(e.target.value)}
+                                className="ml-4 rounded-md border-gray-700 bg-gray-700 text-white py-2 pl-3 pr-10 text-sm focus:border-custom focus:outline-none focus:ring-custom !rounded-button"
+                                id="assign-reviewer"
+                                disabled={projectStatus === "Request Revision"}
+                              >
+                                <option value="">Assign Reviewer</option>
+
+                                {hods.map((hod) => (
+                                  <option key={hod.$id} value={hod.Name}>
+                                    {hod.Name} - {hod.Department}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+
+                          {/* Badge for Approval by Both Project Head and HOD */}
+                          {selectedProject.proheadStatus === "Approve" && selectedProject.hodStatus === "Approve" && (
+                            <div className="mt-6 flex justify-end w-[50%]">
+                              <div className="inline-flex items-center px-4 py-2 border border-green-500 rounded-lg bg-green-900 text-green-300">
+                                <i className="fas fa-award text-xl mr-2"></i>
+                                <span className="text-sm font-medium">Approved by Project Head and HOD</span>
+                              </div>
+                            </div>
+                          )}
 
                         </div>
+
+                        {/* deadline feature when reuqest revision select */}
+                        <div className="mt-6">
+                          {projectStatus === "Request Revision" ? (<div>
+                            <label className="block text-sm font-medium text-white">Revision Deadline</label>
+                            <input
+                              type="date"
+                              value={revisionDeadline}
+                              onChange={(e) => setRevisionDeadline(e.target.value)}
+                              className="w-[30%] mt-2 bg-gray-700 border-gray-600 text-white rounded-lg"
+                            /> </div>) : ""
+                          }
+                        </div>
+
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" 
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-custom text-base font-medium text-white hover:bg-custom/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom sm:ml-3 sm:w-auto sm:text-sm !rounded-button"
-                onClick={handleFeedbackSubmit}
+                <button type="button"
+                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-custom text-base font-medium
+                   text-white hover:bg-custom/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom sm:ml-3 sm:w-auto sm:text-sm 
+                   !rounded-button ${selectedProject.proheadStatus === "Approve"
+                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                      : "bg-custom text-white hover:bg-custom/90"
+                    }
+                   `}
+                  onClick={() => {
+                    if (projectStatus === "Approve") {
+                      handleFeedbackSubmit(); // Call handleFeedbackSubmit when "Approve" is selected
+                    } else if (projectStatus === "Request Revision") {
+                      handleRequestRevision(); // Call handleRequestRevision when "Request Revision" is selected
+                    } else {
+                      alert("Please select a valid status before submitting feedback.");
+                    }
+                  }}
+                  disabled={selectedProject.proheadStatus === "Approve"}
                 >
                   Submit Feedback
                 </button>

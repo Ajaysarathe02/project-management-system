@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { account } from '../lib/appwrite';
+import { account,databases,database_id } from '../lib/appwrite';
 import { Link, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Profile from './Profile';
 import Projects from './Projects';
@@ -10,13 +10,17 @@ import { UserContext } from '../context/contextApi';
 import { motion } from 'motion/react';
 import Overview from './Overview';
 import StudentNotifications from './StudentNotifcations';
+import { Query } from 'appwrite';
+import StudentChat from './StudentChat';
 
 function StudentDashboard() {
-  const { user, getCurrentUser,studentDetailInfo,fetchStudentData } = useContext(UserContext);
+  const { user, getCurrentUser, studentDetailInfo, fetchStudentData } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0); // State for unread notifications count
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -27,6 +31,25 @@ function StudentDashboard() {
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const fetchUnreadNotifications = async () => {
+      try {
+        if (user) {
+          const response = await databases.listDocuments(
+            database_id,
+            "67d08e62003a0547f663", // Replace with your notifications collection ID
+            [Query.equal("studentId", user.$id), Query.equal("isRead", false)] // Fetch unread notifications for the student
+          );
+          setUnreadCount(response.total); // Set the unread notifications count
+        }
+      } catch (error) {
+        console.error("Failed to fetch unread notifications:", error);
+      }
+    };
+
+    fetchUnreadNotifications();
+  }, [user]); // Re-fetch notifications when the user changes
 
 
   const handleLogout = async () => {
@@ -60,7 +83,7 @@ function StudentDashboard() {
     { path: `/student-dash/profile`, label: 'Profile', icon: 'fas fa-user' },
     { path: `/student-dash/projects`, label: 'Projects', icon: 'fas fa-project-diagram' },
     { path: `/student-dash/submit-project`, label: 'Submit Project', icon: 'fas fa-plus' },
-    { path: `/student-dash/project-status`, label: 'Project Status', icon: 'fas fa-tasks' },
+    { path: `/student-dash/chat`, label: 'Chat', icon: 'fas fa-plus' },
   ];
 
   return (
@@ -81,11 +104,20 @@ function StudentDashboard() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex relative items-center p-3 rounded-lg ${location.pathname === item.path ? 'bg-blue-600 text-white' : 'hover:bg-gray-800 text-gray-200'
+              className={`flex relative items-center p-3 rounded-lg ${location.pathname === item.path ? "bg-blue-600 text-white" : "hover:bg-gray-800 text-gray-200"
                 }`}
             >
               <i className={`${item.icon} w-5 mr-5`}></i>
-              <span className={`ml-3 transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
+              <span className={`ml-3 transition-opacity duration-300 ${isCollapsed ? "opacity-0" : "opacity-100"}`}>
+                {item.label}
+              </span>
+
+              {/* Show badge for Notifications */}
+              {item.path === "/student-dash/notifications" && unreadCount > 0 && (
+                <span className="absolute right-4 top-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
 
               {location.pathname === item.path && (
                 <motion.div
@@ -94,10 +126,9 @@ function StudentDashboard() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-
             </Link>
           ))}
         </nav>
@@ -113,13 +144,13 @@ function StudentDashboard() {
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto bg-black">
         <div className="w-full mx-auto">
-        <Routes>
-            <Route path="/" element={<Overview />} />
+          <Routes>
+            <Route path="/" element={<ProjectStatus />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/submit-project" element={<SubmitProject />} />
-            <Route path="/project-status" element={<ProjectStatus />} />
             <Route path="/notifications" element={<StudentNotifications />} />
+            <Route path="/chat" element={<StudentChat />} />
             {/* Add more routes as needed */}
           </Routes>
         </div>

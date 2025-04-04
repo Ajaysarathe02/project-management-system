@@ -7,13 +7,16 @@ import Uploading from "../animations/Uploading.json"
 import Success from "../animations/Success.json"
 import Lottie from "lottie-react";
 import { FaReact, FaAngular, FaVuejs, FaNodeJs, FaPython, FaGithub, FaNpm, FaSwift } from "react-icons/fa";
-import { SiDjango, SiTailwindcss, SiFirebase, SiAppwrite, SiTensorflow, SiPytorch, SiScikitlearn, SiKeras, 
-  SiOpencv, SiJupyter, SiGooglecolab, SiFigma, SiAdobexd, SiSketch, SiInvision, SiFramer, SiZelle, 
-  SiCanva, SiTableau, SiPowers, SiFlutter, 
+import {
+  SiDjango, SiTailwindcss, SiFirebase, SiAppwrite, SiTensorflow, SiPytorch, SiScikitlearn, SiKeras,
+  SiOpencv, SiJupyter, SiGooglecolab, SiFigma, SiAdobexd, SiSketch, SiInvision, SiFramer, SiZelle,
+  SiCanva, SiTableau, SiPowers, SiFlutter,
   SiKotlin,
-  SiAndroidstudio} from "react-icons/si";
+  SiAndroidstudio
+} from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
 import { img, source } from "motion/react-m";
+import { APPWRITE_CONFIG } from "../lib/appwriteConfig";
 
 const SubmitProject = () => {
   // project data
@@ -22,6 +25,7 @@ const SubmitProject = () => {
   const [newTeamMember, setNewTeamMember] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [selectedTechnologies, setSelectedTechnologies] = useState([]);
+  const [projectHeads, SetProjectHeads] = useState([])
 
   const { user, fetchProjects, uploadProject, projects } =
     useContext(UserContext);
@@ -43,7 +47,7 @@ const SubmitProject = () => {
     uploadBy: user.$id,
     images: [],
   });
-  
+
   // technology icons
   const technologyIcons = {
     React: <FaReact className="text-blue-500" />,
@@ -53,7 +57,7 @@ const SubmitProject = () => {
     Django: <SiDjango className="text-green-700" />,
     TailwindCSS: <SiTailwindcss className="text-blue-400" />,
     Bootstrap: <FaReact className="text-purple-500" />,
-    Firebase:  <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=62452&format=png&color=000000" />,
+    Firebase: <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=62452&format=png&color=000000" />,
     Appwrite: <SiAppwrite className="text-pink-500" />,
     GitHub: <FaGithub className="text-gray-500" />,
     NPM: <FaNpm className="text-red-600" />,
@@ -75,40 +79,58 @@ const SubmitProject = () => {
     "Power BI": <SiPowers className="text-yellow-500" />,
     "React Native": <TbBrandReactNative className="text-blue-400" />,
     "Flutter": <SiFlutter className="text-blue-400" />,
-    Swift:<FaSwift className="text-orange-400" />,
+    Swift: <FaSwift className="text-orange-400" />,
     Kotlin: <SiKotlin className="text-purple-700  text-sm" />,
     // "Android Studio": <SiAndroidstudio className="text-blue-700" />,
     "Android Studio": <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=04OFrkjznvcd&format=png&color=000000" />,
-    Pandas: <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=xSkewUSqtErH&format=png&color=000000" /> ,
-    NumPy : <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=aR9CXyMagKIS&format=png&color=000000" /> ,
-    Matplotlib : <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=AuUafKkHkYAO&format=png&color=000000" /> ,
-    
-    
-  };
- 
-  const clearForm = () => {
-  setProjectData({
-    title: "",
-    category: "Web Development",
-    head: "",
-    teamMembers: [],
-    dueDate: "",
-    githubLink: "",
-    description: "",
-    attachments: [],
-    hodStatus: "not approved",
-    proheadStatus: "not approved",
-    hodComment: "no comments",
-    proheadComment: "no comment",
-    uploadBy: user.$id,
-    images: [],
-  });
-  setSelectedTechnologies([]); // Clear selected technologies
-  setFileNames([]); // Clear file names
-  setNewTeamMember(""); // Clear the team member input
-};
+    Pandas: <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=xSkewUSqtErH&format=png&color=000000" />,
+    NumPy: <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=aR9CXyMagKIS&format=png&color=000000" />,
+    Matplotlib: <img className="h-5 w-5" src="https://img.icons8.com/?size=100&id=AuUafKkHkYAO&format=png&color=000000" />,
 
- 
+
+  };
+
+  const clearForm = () => {
+    setProjectData({
+      title: "",
+      category: "Web Development",
+      head: "",
+      teamMembers: [],
+      dueDate: "",
+      githubLink: "",
+      description: "",
+      attachments: [],
+      hodStatus: "not approved",
+      proheadStatus: "not approved",
+      hodComment: "no comments",
+      proheadComment: "no comment",
+      uploadBy: user.$id,
+      images: [],
+    });
+    setSelectedTechnologies([]); // Clear selected technologies
+    setFileNames([]); // Clear file names
+    setNewTeamMember(""); // Clear the team member input
+  };
+
+  // Fetch registered HODs
+  const fetchProjectHeads = async () => {
+    try {
+      const response = await databases.listDocuments(
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.PROJECT_HEAD // Replace with your HODs collection ID
+      );
+      if (response) {
+        SetProjectHeads(response.documents); // Store HODs in state
+      } else {
+        SetProjectHeads(null)
+      }
+
+    } catch (error) {
+      console.error("Failed to fetch HODs:", error);
+    }
+  };
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProjectData((prevData) => ({
@@ -253,13 +275,18 @@ const SubmitProject = () => {
   };
 
   const Savedraft = () => {
-    console.log("selected techs are ",selectedTechnologies)
+    console.log("selected techs are ", selectedTechnologies)
   }
 
   useEffect(() => {
     // Reset selected technologies when category changes
     setSelectedTechnologies([]);
   }, [projectData.category]);
+
+  useEffect(() => {
+    fetchProjectHeads();
+  }, [])
+
 
 
   return (
@@ -347,9 +374,12 @@ const SubmitProject = () => {
                   className="w-full bg-gray-700 border-gray-600 text-white rounded-lg"
                 >
                   <option>Select Project Head</option>
-                  <option>John Doe</option>
-                  <option>Jane Smith</option>
-                  <option>Alex Johnson</option>
+
+                  {projectHeads.map((hod) => (
+                    <option key={hod.$id} value={hod.Name}>
+                      {hod.Name} - {hod.Department}
+                    </option>
+                  ))}
                 </select>
               </div>
 

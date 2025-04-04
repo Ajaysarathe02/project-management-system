@@ -26,22 +26,36 @@ function StudentNotifications() {
     }
   };
 
-  const markAsRead = async (notificationId) => {
-    try {
-      await databases.updateDocument(
+ // Mark all unread notifications as read
+ const markAllAsRead = async (studentId) => {
+  try {
+    const response = await databases.listDocuments(
+      database_id,
+      "67d08e62003a0547f663", // Replace with your notifications collection ID
+      [Query.equal("studentId", studentId), Query.equal("isRead", false)] // Fetch unread notifications
+    );
+
+    const unreadNotifications = response.documents;
+
+    // Update each unread notification to mark it as read
+    const updatePromises = unreadNotifications.map((notification) =>
+      databases.updateDocument(
         database_id,
         "67d08e62003a0547f663", // Replace with your notifications collection ID
-        notificationId,
+        notification.$id,
         { isRead: true }
-      );
-      fetchNotifications(); // Refresh notifications
-    } catch (error) {
-      console.error("Failed to mark notification as read:", error);
-    }
-  };
+      )
+    );
+
+    await Promise.all(updatePromises); // Wait for all updates to complete
+  } catch (error) {
+    console.error("Failed to mark notifications as read:", error);
+  }
+};
 
   useEffect(() => {
     fetchNotifications(); // Fetch notifications on component mount
+    markAllAsRead(user.$id)
   }, []);
 
   return (
@@ -57,7 +71,7 @@ function StudentNotifications() {
                 key={notification.$id}
                 className="bg-gray-800 rounded-lg shadow p-4 flex items-start space-x-4"
                 onClick={()=>{
-                    markAsRead(notification.$id)
+                    markAllAsRead(notification.studentId)
                 }}
               >
                 <div className="flex-shrink-0">

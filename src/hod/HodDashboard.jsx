@@ -9,6 +9,7 @@ import HodReports from "./HodReports";
 import HodSettings from "./HodSettings";
 import { Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { motion } from 'motion/react';
+import HodChat from "./HodChat";
 
 function HodDashboard() {
     const { user } = useContext(UserContext); // Access the logged-in user
@@ -69,6 +70,11 @@ function HodDashboard() {
         {
             path: "/hod-dash/settings",
             label: "Settings",
+            icon: "fas fa-cog",
+        },
+        {
+            path: "/hod-dash/chat",
+            label: "Chat",
             icon: "fas fa-cog",
         },
     ];
@@ -157,6 +163,7 @@ function HodDashboard() {
                         />
                         <Route path="/reports" element={<HodReports />} />
                         <Route path="/settings" element={<HodSettings />} />
+                        <Route path="/chat" element={<HodChat />} />
 
                         {/* Add more routes as needed */}
                     </Routes>

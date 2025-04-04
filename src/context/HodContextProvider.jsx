@@ -1,11 +1,52 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState , useContext,useEffect} from "react";
 import { account, databases, ID, database_id } from "../lib/appwrite";
-import { HodContext } from "./contextApi";
+import { HodContext, UserContext } from "./contextApi";
+import { APPWRITE_CONFIG } from "../lib/appwriteConfig";
+import { Query } from "appwrite";
 
 const HodContextProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
   const [hodUser, setHodUser] = useState("");
+  const { user } = useContext(UserContext)
+  const [hodProfileData, setHodProfileData] = useState(null)
+  const [cachedProjects, setCachedProjects] = useState(null);
+
+  const fetchHodData = async (userId) => {
+    try {
+      const response = await databases.listDocuments(
+        APPWRITE_CONFIG.DATABASE_ID,
+        APPWRITE_CONFIG.COLLECTIONS.HOD,
+        [Query.equal("userid", userId)]
+      );
+
+      if (response.documents.length > 0) {
+        const document = response.documents[0];
+        console.log("Fetched HOD data:", document);
+        setHodProfileData(document);
+        return document;
+
+      } else {
+        console.error("Document not found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Failed to fetch hod data", error);
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+       const res = await account.get(); 
+      
+      const data = await fetchHodData(res.$id);
+      setHodProfileData(data);
+
+    };
+
+    fetchData();
+  }, []);
 
   // HOD Signup Logic
   const signupHod = async (hodName, hodEmail, hodPassword, hodDepartment, hodDesignation, role) => {
@@ -73,7 +114,7 @@ const HodContextProvider = ({ children }) => {
   }
 
   return (
-    <HodContext.Provider value={{ signupHod, loading, getHodUser, setHodUser,hodUser }}>
+    <HodContext.Provider value={{ signupHod, getHodUser, setHodUser, hodUser, hodProfileData, setHodProfileData }}>
       {children}
     </HodContext.Provider>
   );
