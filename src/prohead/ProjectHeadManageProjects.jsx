@@ -471,7 +471,7 @@ function ProjectHeadManageProjects() {
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${project.proheadStatus === "Approve"
                         ? "bg-green-900 text-green-300"
-                        : project.proheadStatus === "Rejecte"
+                        : project.proheadStatus === "Reject"
                           ? "bg-red-900 text-red-300"
                           : "bg-yellow-900 text-yellow-300"
                         }`}
