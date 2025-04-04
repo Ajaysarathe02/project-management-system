@@ -476,8 +476,8 @@ const SubmitProject = () => {
                     const files = Array.from(e.dataTransfer.files);
 
                     // Validate file size (max 5MB per image)
-                    const validFiles = files.filter((file) => file.size <= 5 * 1024 * 1024); // 5MB in bytes
-                    const invalidFiles = files.filter((file) => file.size > 5 * 1024 * 1024);
+                    const validFiles = files.filter((file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024); // 5MB in bytes
+                    const invalidFiles = files.filter((file) => !file.type.startsWith("image/") || file.size > 5 * 1024 * 1024);
 
                     if (invalidFiles.length > 0) {
                       toast.error("Some images exceed the 5MB size limit and were not added.");
@@ -526,7 +526,7 @@ const SubmitProject = () => {
                     Supported formats: JPG, PNG, GIF (Max 5MB per image)
                   </p>
 
-                  {/* Display selected images */}
+
                   {projectData.images.length > 0 && (
                     <div className="mt-4 grid grid-cols-4 gap-4">
                       {projectData.images.map((image, index) => (
@@ -556,7 +556,6 @@ const SubmitProject = () => {
                     </div>
                   )}
                 </div>
-
               </div>
 
               {/* for project files */}

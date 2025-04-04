@@ -18,12 +18,20 @@ function HodDashboard() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState(true); // Add a loading state
 
     const getHOD = async () => {
-        const data = await account.get();
-        setCurrentHod(data)
-    }
+        try {
+            const data = await account.get();
+            setCurrentHod(data);
+        } catch (error) {
+            console.error("Error fetching HOD data:", error);
+            toast.error("Failed to load HOD data.", {
+                position: "top-center",
+                autoClose: 3000,
+            });
+        }
+    };
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -41,9 +49,16 @@ function HodDashboard() {
     };
 
     useEffect(() => {
-        getHodUser();
-        getHOD();
-    }, [])
+        const fetchData = async () => {
+            setLoading(true); // Set loading to true before fetching
+            await getHodUser(); // Fetch HOD user details
+            await getHOD(); // Fetch current HOD data
+            setLoading(false); // Set loading to false after fetching
+        };
+
+        fetchData(); // Fetch data on component mount
+    }, []);
+
 
     // Define the navigation items
     const navItems = [
@@ -56,11 +71,6 @@ function HodDashboard() {
             path: "/hod-dash/profile",
             label: "Profile",
             icon: "fas fa-user",
-        },
-        {
-            path: "/hod-dash/manage-projects",
-            label: "Manage Projects",
-            icon: "fas fa-tasks",
         },
         {
             path: "/hod-dash/reports",
@@ -78,6 +88,18 @@ function HodDashboard() {
             icon: "fas fa-cog",
         },
     ];
+
+    if (loading) {
+        // Show a loading spinner or message while data is being fetched
+        return (
+            <div className="flex items-center justify-center h-screen bg-black text-white">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mb-4"></div>
+                    <p className="text-lg font-medium">Loading Dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen text-white bg-black">
@@ -155,12 +177,8 @@ function HodDashboard() {
             <main className="flex-1 p-8 overflow-y-auto bg-black">
                 <div className="w-full mx-auto">
                     <Routes>
-                        <Route path="/" element={<HodOverview />} />
+                        <Route path="/" element={<HodManageProjects />} />
                         <Route path="/profile" element={<HodProfile />} />
-                        <Route
-                            path="/manage-projects"
-                            element={<HodManageProjects />}
-                        />
                         <Route path="/reports" element={<HodReports />} />
                         <Route path="/settings" element={<HodSettings />} />
                         <Route path="/chat" element={<HodChat />} />

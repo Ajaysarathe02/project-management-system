@@ -37,14 +37,23 @@ function ProjectHeadDashBoard() {
   };
   
 
+  // useEffect(() => {
+  //   if (!projectHead) {
+  //     // Fetch data only if it doesn't already exist
+  //     getProjectHead();
+  //   } else {
+  //     setLoading(false); // If data already exists, skip fetching
+  //   }
+  // }, [projectHead]);
+
   useEffect(() => {
-    if (!projectHead) {
-      // Fetch data only if it doesn't already exist
-      getProjectHead();
-    } else {
-      setLoading(false); // If data already exists, skip fetching
-    }
-  }, [projectHead]);
+    const fetchData = async () => {
+      setLoading(true); // Ensure loading state is set to true before fetching
+      await getProjectHead();
+    };
+  
+    fetchData(); // Always fetch data on component mount
+  }, []);
   
 
   const toggleCollapse = () => {
@@ -73,11 +82,6 @@ function ProjectHeadDashBoard() {
       path: "/projecthead-dash/profile",
       label: "Profile",
       icon: "fas fa-user",
-    },
-    {
-      path: "/projecthead-dash/manage-projects",
-      label: "Manage Projects",
-      icon: "fas fa-tasks",
     },
     {
       path: "/projecthead-dash/reports",
@@ -191,12 +195,8 @@ function ProjectHeadDashBoard() {
       <main className="flex-1 p-8 overflow-y-auto bg-black">
         <div className="w-full mx-auto">
           <Routes>
-            <Route path="/" element={<ProjectHeadOverview />} />
+            <Route path="/" element={<ProjectHeadManageProjects />} />
             <Route path="/profile" element={<ProjectHeadProfile />} />
-            <Route
-              path="/manage-projects"
-              element={<ProjectHeadManageProjects />}
-            />
             <Route path="/reports" element={<ProjectHeadReports />} />
             <Route path="/settings" element={<ProjectHeadSettings />} />
             <Route path="/chat" element={<ProjectHeadChat />} />

@@ -25,7 +25,7 @@ function ProjectHeadManageProjects() {
   const [feedback, setFeedback] = useState("no feedback");
   const [projectStatus, setProjectStatus] = useState("");
   const { projectHead, setProjectHeadPicture, getProjectHeadDetails } = useContext(ProjectHeadContext); // Access context
-  const [revisionHistory,SetRevisionHistory] = useState({})
+  const [revisionHistory, SetRevisionHistory] = useState({})
 
   const [revisionDeadline, setRevisionDeadline] = useState(""); // for request revision deadline
 
@@ -120,19 +120,29 @@ function ProjectHeadManageProjects() {
     getProjectHead()
     fetchProjects();
     fetchHods();
-   
+
   }, []);
 
-  // Handle card click to open modal
-  const handleCardClick = async (project) => {
 
+
+  const handleCardClick = async (project) => {
     setSelectedProject(project); // Set the selected project
     setProjectUploader(projectUploaderMap[project.$id]); // Set the project uploader
-    setProjectFiles(JSON.parse(project.attachments)); // Parse and store project files
-    SetRevisionHistory(JSON.parse(project.revisionHistory));
+
+    setProjectFiles(project.attachments ? JSON.parse(project.attachments) : []); // Parse and store project files
+
+    const arrayornot = () => {
+      return !Array.isArray(project.revisionHistory) || project.revisionHistory.length === 0;
+    }
+
+    if (arrayornot()) {
+      SetRevisionHistory(null);
+    } else {
+      SetRevisionHistory(JSON.parse(project.revisionHistory));
+    }
+
     setRating(project.rating || 0);
     setIsModalOpen(true);
-
   };
 
   // Handle modal close
@@ -213,6 +223,7 @@ function ProjectHeadManageProjects() {
           rating: rating, // Add the rating
           assignedBy: projectHead.Name,
           proheadId: projectHead.userid,
+         
         }
       );
 
@@ -288,7 +299,7 @@ function ProjectHeadManageProjects() {
         APPWRITE_CONFIG.COLLECTIONS.PROJECTS,
         selectedProject.$id,
         {
-          proheadId:projectHead.userid,
+          proheadId: projectHead.userid,
           proheadStatus: projectStatus,
           proheadComment: feedback,
           assignedReviewer: null, // Clear reviewer since it's a revision request
@@ -637,15 +648,15 @@ function ProjectHeadManageProjects() {
                       <div className="mt-6">
                         <h4 className="font-medium text-white">Revision History</h4>
                         {selectedProject.revisionHistory?.length > 0 ? (
-                          
+
                           <ul className="mt-2 text-sm text-gray-400 list-decimal list-inside">
-                              <li>
-                                <strong>{revisionHistory.timestamp} - </strong>
-                                <strong>{revisionHistory.feedback} - </strong>
-                                <strong>{revisionHistory.deadline}  </strong>
-                          
-                              </li>
-                            
+                            <li>
+                              <strong>{revisionHistory.timestamp} - </strong>
+                              <strong>{revisionHistory.feedback} - </strong>
+                              <strong>{revisionHistory.deadline}  </strong>
+
+                            </li>
+
                           </ul>
                         ) : (
                           <p className="mt-2 text-sm text-gray-400">No revisions requested yet.</p>
