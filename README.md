@@ -156,7 +156,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - <a href="" > TailwindCSS </a>
 - <a href="" > Font Awesome </a>
 
-<p align="center"> Made with ❤️ by <a href="https://github.com/kumar21-crypto">Aniruddh</a> </p> 
+<p align="center"> Made with ❤️ by <a href="https://github.com/Ajaysarathe02">Ajay</a> </p> 
 
 ## Notes:
 
